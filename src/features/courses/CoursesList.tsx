@@ -14,7 +14,7 @@ export function CoursesList() {
               {v.fullname}
             </a>
             <div className="flex">
-              <a href={MOODLE_GRADES_URL(v.id)} target="_blank" className="i-material-symbols-percent text-lg" />
+              <a href={MOODLE_GRADES_URL(v.id)} target="_blank" className="i-material-symbols-menu-book-outline-rounded text-lg" />
             </div>
           </div>
         )) ?? <div className="text-lg">Loading...</div>}

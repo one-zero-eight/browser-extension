@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { CoursesList } from '@/features/courses/CoursesList'
 import { sendMessage } from '@/shared/messages'
@@ -11,6 +12,7 @@ export default function Popup() {
   return (
     <div className="min-w-md flex flex-col">
       <TopBar />
+      <UsefulLinksSection />
       <CoursesList />
     </div>
   )
