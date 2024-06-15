@@ -31,8 +31,7 @@ export async function obtainMobileToken(options: { useSSO?: boolean } = { useSSO
     // Extract token from html page
     const encodedToken = resp.data.match(/"moodlemobile:\/\/token=(.*)"/)?.[1]
     if (!encodedToken) {
-      console.error('Couldn\'t get mobile_app token')
-      return {}
+      throw new Error('No token present on page')
     }
 
     // Split token into siteId, token, privateToken
