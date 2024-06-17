@@ -18,7 +18,6 @@ export const AxiosWS = axios.create({
 // Add token to request data
 AxiosWS.interceptors.request.use(async (request) => {
   const token = await getToken()
-  console.log(token)
   if (token) {
     request.data = {
       ...request.data,
