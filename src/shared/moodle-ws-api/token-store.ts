@@ -1,4 +1,5 @@
 import { obtainMobileToken } from './token-for-session'
+import { moodle } from '@/shared/moodle-ws-api/client'
 import { getStored, removeStored, setStored } from '@/shared/storage'
 
 /**
@@ -30,6 +31,9 @@ export async function refreshToken() {
   if (token) {
     await setStored('token', token)
     await setStored('privateToken', privateToken)
+    moodle.core.webservice.getSiteInfo({}).then((siteInfo) => {
+      setStored('userId', siteInfo.userid)
+    })
   }
   return token
 }

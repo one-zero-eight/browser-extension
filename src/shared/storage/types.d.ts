@@ -8,6 +8,9 @@ export interface SharedStorage {
   token: string
   privateToken: string
 
+  // User info
+  userId: number
+
   // Courses
   courses: Courses
   coursesLastUpdateMS: number
