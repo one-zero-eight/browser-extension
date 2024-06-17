@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         id: dependencies
-        run: pnpm i --frozen-lockfile
+        run: pnpm i --frozen-lockfile --ignore-scripts
 
       - name: Lint
         if: steps.dependencies.outcome == 'success'
