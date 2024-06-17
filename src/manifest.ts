@@ -45,6 +45,7 @@ export default defineManifest({
   ],
   background: {
     // Service worker for background tasks
+    scripts: ['src/entrypoints/background/index.ts'],
     service_worker: 'src/entrypoints/background/index.ts',
     type: 'module',
   },
