@@ -14,7 +14,7 @@
     "lint:fix": "eslint . --fix",
     "deps": "taze -wIr",
     "release": "bumpp -r package.json backend/package.json",
-    "prepare": "simple-git-hooks"
+    "prepare": "simple-git-hooks || true"
   },
   "dependencies": {
     "@unocss/reset": "^0.61.0",
