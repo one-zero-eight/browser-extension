@@ -1,6 +1,6 @@
 {
   "name": "innohassle-browser-extension",
-  "displayName": "InNoHassle Browser extension",
+  "displayName": "InNoHassle Tools",
   "type": "module",
   "version": "0.2.0",
   "private": true,
