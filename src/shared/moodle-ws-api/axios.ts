@@ -9,9 +9,9 @@ export const AxiosWS = axios.create({
   method: 'POST',
   headers: {
     'Content-Type': 'application/x-www-form-urlencoded',
-    // Browser doesn't allow to set User-Agent here.
-    // Extension should use declarativeNetRequest rules.
-    // "User-Agent": "MoodleMobile",
+    // Chrome prohibits to set User-Agent here. We should use declarativeNetRequest rules.
+    // But Firefox allows to set User-Agent here.
+    'User-Agent': 'MoodleMobile',
   },
 })
 
