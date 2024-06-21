@@ -28,6 +28,8 @@ jobs:
   # Build extension zip file
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -47,10 +49,16 @@ jobs:
         id: dependencies
         run: pnpm i --frozen-lockfile --ignore-scripts
 
+      - name: Calculate postfix
+        if: ${{ !startsWith(github.ref, 'refs/tags/v') }}
+        id: postfix
+        run: |
+          echo "postfix=$(echo ${{ github.sha }} | cut -c1-7)" >> $GITHUB_OUTPUT
+
       - name: Build zip for Chrome
         id: chrome-zip
         run: |
-          pnpm run zip:chrome "${{ github.sha }}"
+          pnpm run zip:chrome "${{ steps.postfix.outputs.postfix }}"
           CHROME_ZIP_PATH=$(ls package/*-chrome*.zip)
           echo "path=$CHROME_ZIP_PATH" >> $GITHUB_OUTPUT
 
@@ -63,7 +71,7 @@ jobs:
       - name: Build zip for Firefox
         id: firefox-zip
         run: |
-          pnpm run zip:firefox "${{ github.sha }}"
+          pnpm run zip:firefox "${{ steps.postfix.outputs.postfix }}"
           FIREFOX_ZIP_PATH=$(ls package/*-firefox*.zip)
           echo "path=$FIREFOX_ZIP_PATH" >> $GITHUB_OUTPUT
 
@@ -72,3 +80,12 @@ jobs:
         with:
           name: firefox-extension
           path: ${{ steps.firefox-zip.outputs.path }}
+
+      - name: Add zip for Chrome and Firefox to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            ${{ steps.chrome-zip.outputs.path }}
+            ${{ steps.firefox-zip.outputs.path }}
+          token: ${{ secrets.GITHUB_TOKEN }}
