@@ -48,23 +48,27 @@ jobs:
         run: pnpm i --frozen-lockfile --ignore-scripts
 
       - name: Build zip for Chrome
-        if: steps.dependencies.outcome == 'success'
-        run: pnpm run zip:chrome "${{ github.sha }}"
+        id: chrome-zip
+        run: |
+          pnpm run zip:chrome "${{ github.sha }}"
+          CHROME_ZIP_PATH=$(ls package/*-chrome*.zip)
+          echo "path=$CHROME_ZIP_PATH" >> $GITHUB_OUTPUT
 
       - name: Add zip for Chrome as artifact
-        if: steps.dependencies.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: chrome-extension
-          path: package/*-chrome*
+          path: ${{ steps.chrome-zip.outputs.path }}
 
       - name: Build zip for Firefox
-        if: steps.dependencies.outcome == 'success'
-        run: pnpm run zip:firefox "${{ github.sha }}"
+        id: firefox-zip
+        run: |
+          pnpm run zip:firefox "${{ github.sha }}"
+          FIREFOX_ZIP_PATH=$(ls package/*-firefox*.zip)
+          echo "path=$FIREFOX_ZIP_PATH" >> $GITHUB_OUTPUT
 
       - name: Add zip for Firefox as artifact
-        if: steps.dependencies.outcome == 'success'
         uses: actions/upload-artifact@v4
         with:
           name: firefox-extension
-          path: package/*-firefox*
+          path: ${{ steps.firefox-zip.outputs.path }}
