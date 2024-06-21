@@ -20,12 +20,14 @@ onMessage('MOODLE_LOAD', () => {
       // Try to get token and privateToken from current session
       refreshToken()
     }
-    getStored('userId').then((userId) => {
-      if (!userId) {
-        // Try to get userId from current session
-        refreshToken()
-      }
-    })
+    else {
+      getStored('userId').then((userId) => {
+        if (!userId) {
+          // Try to get userId from current session
+          refreshToken()
+        }
+      })
+    }
   })
 })
 
