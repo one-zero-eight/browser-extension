@@ -10,9 +10,14 @@ export async function fetchCourses(force: boolean = false) {
   }
 
   console.log('Fetching courses')
-  const { courses } = await moodle.core.course.getEnrolledCoursesByTimelineClassification({
-    classification: 'inprogress',
-  })
-  await setStored('courses', courses)
-  await setStored('coursesLastUpdateMS', Date.now())
+  try {
+    const { courses } = await moodle.core.course.getEnrolledCoursesByTimelineClassification({
+      classification: 'inprogress',
+    })
+    await setStored('courses', courses)
+    await setStored('coursesLastUpdateMS', Date.now())
+  }
+  catch (e) {
+    console.log('Error: Couldn\'t fetch courses')
+  }
 }

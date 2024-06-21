@@ -6,13 +6,13 @@ export async function autoLogIn() {
   console.debug('Auto logging in...')
   const privateToken = await getStored('privateToken')
   if (!privateToken) {
-    console.error('No private token found')
+    console.log('Warning: No private token found')
     return false
   }
 
   const userId = await getStored('userId')
   if (!userId) {
-    console.error('No user ID found')
+    console.log('Warning: No user ID found')
     return false
   }
 
@@ -30,7 +30,7 @@ export async function autoLogIn() {
     return true
   }
   catch (e) {
-    console.error('Auto login failed', e)
+    console.log('Warning: Auto login failed', e)
     return false
   }
 }

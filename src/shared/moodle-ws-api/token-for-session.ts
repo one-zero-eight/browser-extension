@@ -38,12 +38,22 @@ export async function obtainMobileToken(options: { useSSO?: boolean } = { useSSO
     const plainToken = atob(encodedToken)
     const [_, token, privateToken] = plainToken.split(':::') as [string, string, string | undefined]
 
+    if (token === undefined) {
+      console.log('Warning: Couldn\'t get mobile_app token')
+    }
+    else if (privateToken === undefined) {
+      console.log('Warning: Got token, but no privateToken')
+    }
+    else {
+      console.log('Got token and privateToken')
+    }
+
     return { token, privateToken }
   }
   catch (e) {
-    console.error('Couldn\'t get mobile_app token')
+    console.log('Warning: Couldn\'t get mobile_app token')
     if (options.useSSO) {
-      console.error('Trying without SSO...')
+      console.log('Warning: Trying without SSO...')
       return await obtainMobileToken({ useSSO: false })
     }
   }
