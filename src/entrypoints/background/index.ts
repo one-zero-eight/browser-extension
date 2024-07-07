@@ -1,6 +1,7 @@
 import { applyUserAgentRule } from '@/entrypoints/background/net-rules'
 import { autoLogIn } from '@/features/autologin/background'
 import { fetchCourses } from '@/features/courses/background'
+import { syncCourses } from '@/features/search-sync/background'
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
 import { getStored } from '@/shared/storage'
@@ -25,6 +26,10 @@ onMessage('MOODLE_LOAD', () => {
         if (!userId) {
           // Try to get userId from current session
           refreshToken()
+        }
+        else {
+          // Run the worker if needed
+          syncCourses()
         }
       })
     }
