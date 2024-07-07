@@ -42,6 +42,8 @@ export default defineManifest({
   host_permissions: [
     // Allows us to implement auto sign in
     'https://moodle.innopolis.university/*',
+    // Allows us to send requests to our backend
+    'https://*.innohassle.ru/*',
   ],
 
   content_scripts: [

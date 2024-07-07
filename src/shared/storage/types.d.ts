@@ -14,4 +14,7 @@ export interface SharedStorage {
   // Courses
   courses: Courses
   coursesLastUpdateMS: number
+
+  // InNoHassle API
+  innohassleToken: string
 }

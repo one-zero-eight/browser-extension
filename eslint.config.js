@@ -7,4 +7,6 @@ export default antfu({
     'ts/ban-ts-comment': 'off',
     'no-console': 'off',
   },
+}, {
+  ignores: ['**/__generated__.ts'],
 })
