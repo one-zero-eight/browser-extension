@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { SearchAutoSyncToggle } from '@/features/search-sync/SearchAutoSyncToggle'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { CoursesList } from '@/features/courses/CoursesList'
@@ -14,6 +15,7 @@ export default function Popup() {
       <TopBar />
       <UsefulLinksSection />
       <CoursesList />
+      <SearchAutoSyncToggle />
     </div>
   )
 }
