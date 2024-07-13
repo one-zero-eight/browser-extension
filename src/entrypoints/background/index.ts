@@ -13,6 +13,7 @@ chrome.runtime.onInstalled.addListener(() => {
 onMessage('POPUP_OPEN', () => {
   console.log('Background has received a message POPUP_OPEN')
   fetchCourses()
+  syncCourses()
 })
 
 onMessage('MOODLE_LOAD', () => {

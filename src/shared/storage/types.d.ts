@@ -19,4 +19,5 @@ export interface SharedStorage {
   innohassleToken: string
   allowSyncingCourses: boolean
   syncCoursesLastUpdateMS: number
+  innohassleSearchUrl: string
 }

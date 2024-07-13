@@ -1,6 +1,7 @@
 import type { AxiosRequestConfig } from 'axios'
 import axios from 'axios'
 import { getToken, invalidateToken } from '../token-store'
+import { getStored } from '@/shared/storage'
 import { INNOHASSLE_SEARCH_URL } from '@/shared/config/innohassle'
 
 // Axios client for InNoHassle Search API
@@ -10,10 +11,16 @@ export const AxiosSearch = axios.create({
 
 // Add token to Authorization header
 AxiosSearch.interceptors.request.use(async (request) => {
+  const overrideBaseUrl = await getStored('innohassleSearchUrl')
+  if (overrideBaseUrl) {
+    request.baseURL = overrideBaseUrl
+  }
+
   const token = await getToken()
   if (token) {
     request.headers.Authorization = `Bearer ${token}`
   }
+
   return request
 })
 

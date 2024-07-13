@@ -1,4 +1,4 @@
-import { setStored, useStorage } from '@/shared/storage'
+import { removeStored, setStored, useStorage } from '@/shared/storage'
 import { cn } from '@/shared/ui/utils'
 
 export function SearchAutoSyncToggle() {
@@ -17,6 +17,7 @@ export function SearchAutoSyncToggle() {
         )}
         onClick={() => {
           setStored('allowSyncingCourses', !allowSendingCourses)
+          removeStored('syncCoursesLastUpdateMS')
         }}
       >
         {allowSendingCourses === false ? 'OFF' : 'ON'}
