@@ -13,7 +13,7 @@ onMessage('AUTOLOGIN_SUCCEEDED', () => {
 
 onMessage('AUTOLOGIN_FAILED', () => {
   console.log(`Message AUTOLOGIN_FAILED received`)
-  if (window.location.href === MOODLE_LOGIN_URL) {
+  if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
     redirectFromLogin(true)
   }
 })

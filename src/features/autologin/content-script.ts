@@ -2,13 +2,16 @@ import { MOODLE_LOGIN_URL } from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
 
 export function requestAutologinIfNeeded() {
-  if (window.location.href === MOODLE_LOGIN_URL) {
+  if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
+    sendMessage('REQUEST_AUTOLOGIN')
+  }
+  else if (document.body.classList.contains('notloggedin')) {
     sendMessage('REQUEST_AUTOLOGIN')
   }
 }
 
 export function refreshPageOnAutologin() {
-  if (window.location.href === MOODLE_LOGIN_URL) {
+  if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
     redirectFromLogin()
   }
   else {
