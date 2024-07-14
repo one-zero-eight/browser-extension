@@ -1,9 +1,12 @@
-import { MOODLE_LOGIN_URL } from '@/shared/config/moodle'
+import { MOODLE_DASHBOARD_URL, MOODLE_LOGIN_URL, MOODLE_MOBILE_LAUNCH_URL } from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
 
 export function requestAutologinIfNeeded() {
   if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
     sendMessage('REQUEST_AUTOLOGIN')
+  }
+  else if (window.location.href.startsWith(MOODLE_MOBILE_LAUNCH_URL)) {
+    window.location.href = MOODLE_DASHBOARD_URL
   }
   else if (document.body.classList.contains('notloggedin')) {
     sendMessage('REQUEST_AUTOLOGIN')
