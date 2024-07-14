@@ -18,6 +18,7 @@ export default defineManifest({
       gecko: { // Firefox for Desktop
         id: 'tools@innohassle.ru',
         strict_min_version: '109.0', // Supports MV3
+        update_url: 'https://api.innohassle.ru/extension/firefox-updates.json',
       },
     },
   }),
