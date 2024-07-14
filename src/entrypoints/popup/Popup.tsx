@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { SearchField } from '@/features/search/SearchField'
 import { SearchAutoSyncToggle } from '@/features/search-sync/SearchAutoSyncToggle'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
@@ -17,6 +18,7 @@ export default function Popup() {
       <UsefulLinksSection />
       <SearchField />
       <CoursesList />
+      <AutologinToggle />
       <SearchAutoSyncToggle />
     </div>
   )

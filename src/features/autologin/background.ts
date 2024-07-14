@@ -3,6 +3,12 @@ import { moodle } from '@/shared/moodle-ws-api'
 import { getStored, setStored } from '@/shared/storage'
 
 export async function autoLogIn() {
+  const enabled = await getStored('autologinEnabled')
+  if (!enabled) {
+    console.log('Auto login is disabled, skipping')
+    return false
+  }
+
   console.debug('Auto logging in...')
   const privateToken = await getStored('privateToken')
   if (!privateToken) {

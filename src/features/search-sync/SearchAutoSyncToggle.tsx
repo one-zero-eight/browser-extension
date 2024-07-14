@@ -5,8 +5,8 @@ export function SearchAutoSyncToggle() {
   const allowSendingCourses = useStorage('allowSyncingCourses')
 
   return (
-    <div className="flex flex-row gap-2 p-2">
-      <div className="text-xs">
+    <div className="w-full flex flex-row items-center justify-between gap-2 p-2">
+      <div className="flex items-center text-xs">
         Sync your Moodle courses contents with InNoHassle Search for indexing and using AI search engine
       </div>
       <button

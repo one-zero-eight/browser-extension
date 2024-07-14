@@ -9,6 +9,7 @@ export interface SharedStorage {
   privateToken: string
 
   // Autologin
+  autologinEnabled: boolean
   autologinLastSuccessMS: number
 
   // User info
