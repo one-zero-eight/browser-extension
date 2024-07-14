@@ -1,4 +1,5 @@
 import {
+  injectSessionKeepalive,
   redirectFromLogin,
   refreshPageOnAutologin,
   requestAutologinIfNeeded,
@@ -23,6 +24,7 @@ onMessage('AUTOLOGIN_FAILED', () => {
 function main() {
   sendMessage('MOODLE_LOAD')
   requestAutologinIfNeeded()
+  injectSessionKeepalive()
 }
 
 main()

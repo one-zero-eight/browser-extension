@@ -31,6 +31,11 @@ export default defineManifest({
       resources: ['icons/logo-16.png', 'icons/logo-32.png', 'icons/logo-48.png', 'icons/logo-128.png'],
       matches: [],
     },
+    {
+      // Injected into the moodle page to keep the session alive
+      resources: ['src/entrypoints/content-script-moodle/session-keepalive.js'],
+      matches: ['https://moodle.innopolis.university/*'],
+    },
   ],
 
   permissions: [
