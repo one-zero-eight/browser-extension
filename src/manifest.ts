@@ -3,6 +3,7 @@ import { defineManifest } from '@crxjs/vite-plugin'
 import packageData from '../package.json'
 
 const isDev = process.env.NODE_ENV === 'development'
+const isFirefox = process.env.BROWSER === 'firefox'
 
 export default defineManifest({
   name: `${packageData.displayName || packageData.name}${isDev ? ' [dev]' : ''}`,
@@ -12,13 +13,14 @@ export default defineManifest({
   manifest_version: 3, // Chrome blocks MV2 extensions
   minimum_chrome_version: '96', // Supports MV3
 
-  // @ts-expect-error
-  browser_specific_settings: {
-    gecko: { // Firefox for Desktop
-      id: 'tools@innohassle.ru',
-      strict_min_version: '109.0', // Supports MV3
+  ...(isFirefox && {
+    browser_specific_settings: {
+      gecko: { // Firefox for Desktop
+        id: 'tools@innohassle.ru',
+        strict_min_version: '109.0', // Supports MV3
+      },
     },
-  },
+  }),
 
   icons: {
     16: 'icons/logo-16.png',
