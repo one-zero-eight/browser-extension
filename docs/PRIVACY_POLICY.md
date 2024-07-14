@@ -15,17 +15,18 @@ We collect and use your information solely for the purpose of providing the auto
 
 1. Autologin to Moodle: Automatically log you into Moodle using the stored token when you open the page.
 2. Fetch Course Lists: Retrieve your course lists from Moodle to display quick links for easy access.
+3. Sync courses with InNoHassle Search: Sync your Moodle courses contents with InNoHassle Search to provide a seamless search experience among university resources.
 
 ## Data Security
 
 We prioritize the security of your data and have implemented robust measures to protect your information:
 
-- Local Storage: Your Moodle token is stored securely in your browser and is never transmitted to any external servers.
-- Secure Transmission: All network requests made to Moodle use HTTPS to ensure the protection of your data during transmission.
+- Local Storage: Your Moodle & InNoHassle tokens are stored securely in your browser and is never transmitted to any third-party servers.
+- Secure Transmission: All network requests made to Moodle & InNoHassle use HTTPS to ensure the protection of your data during transmission.
 
 ## Third-Party Services
 
-InNoHassle Tools does not share your data with any third-party services. All operations involving your data are performed locally within your browser and directly with Moodle servers.
+InNoHassle Tools does not share your data with any third-party services. All operations involving your data are performed locally within your browser and directly with Moodle or InNoHassle servers.
 
 ## Changes to This Privacy Policy
 
