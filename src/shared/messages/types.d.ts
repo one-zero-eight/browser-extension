@@ -5,4 +5,5 @@ export interface Messages {
   REQUEST_AUTOLOGIN: void
   AUTOLOGIN_FAILED: void
   AUTOLOGIN_SUCCEEDED: void
+  AUTOLOGIN_LAST_SUCCESS: number
 }

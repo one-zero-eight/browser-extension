@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { moodle } from '@/shared/moodle-ws-api'
-import { getStored } from '@/shared/storage'
+import { getStored, setStored } from '@/shared/storage'
 
 export async function autoLogIn() {
   console.debug('Auto logging in...')
@@ -27,6 +27,7 @@ export async function autoLogIn() {
 
     await axios.get(url.toString())
     console.log('Auto login succeeded')
+    await setStored('autologinLastSuccessMS', Date.now())
     return true
   }
   catch (e) {

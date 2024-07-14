@@ -17,6 +17,10 @@ onMessage('POPUP_OPEN', () => {
 })
 
 onMessage('MOODLE_LOAD', () => {
+  getStored('autologinLastSuccessMS').then((autologinLastSuccessMS) => {
+    sendMessageToMoodleTabs('AUTOLOGIN_LAST_SUCCESS', autologinLastSuccessMS)
+  })
+
   getStored('privateToken').then((privateToken) => {
     if (!privateToken) {
       // Try to get token and privateToken from current session

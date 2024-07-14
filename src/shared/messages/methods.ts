@@ -1,11 +1,11 @@
 import type { Messages } from './types'
 import { MOODLE_URL } from '@/shared/config/moodle'
 
-export function sendMessage<T extends keyof Messages>(type: T, data: Messages[T] = undefined) {
+export function sendMessage<T extends keyof Messages>(type: T, data: Messages[T] | undefined = undefined) {
   chrome.runtime.sendMessage({ type, data })
 }
 
-export function sendMessageToMoodleTabs<T extends keyof Messages>(type: T, data: Messages[T] = undefined) {
+export function sendMessageToMoodleTabs<T extends keyof Messages>(type: T, data: Messages[T] | undefined = undefined) {
   chrome.tabs.query(
     { url: `${MOODLE_URL}/*` },
     tabs =>
@@ -17,11 +17,11 @@ export function sendMessageToMoodleTabs<T extends keyof Messages>(type: T, data:
   )
 }
 
-export function sendMessageToTab<T extends keyof Messages>(tabId: number, type: T, data: Messages[T] = undefined) {
+export function sendMessageToTab<T extends keyof Messages>(tabId: number, type: T, data: Messages[T] | undefined = undefined) {
   chrome.tabs.sendMessage(tabId, { type, data })
 }
 
-export function onMessage<T extends keyof Messages>(type: T, callback: (data: Messages[T]) => void) {
+export function onMessage<T extends keyof Messages>(type: T, callback: (data: Messages[T] | undefined) => void) {
   chrome.runtime.onMessage.addListener((request) => {
     if (request.type === type) {
       callback(request.data)

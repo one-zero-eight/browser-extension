@@ -1,5 +1,6 @@
 import { MOODLE_DASHBOARD_URL, MOODLE_LOGIN_URL, MOODLE_MOBILE_LAUNCH_URL } from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
+import { setStored } from '@/shared/storage'
 
 export function requestAutologinIfNeeded() {
   if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
@@ -31,6 +32,7 @@ export function redirectFromLogin(shouldGoToSSO: boolean = false) {
 
   if (shouldGoToSSO) {
     console.log(`Redirecting to ${href}`)
+    setStored('autologinLastSuccessMS', Date.now())
     window.location.href = href
     return
   }

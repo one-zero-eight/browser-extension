@@ -21,6 +21,13 @@ onMessage('AUTOLOGIN_FAILED', () => {
   }
 })
 
+onMessage('AUTOLOGIN_LAST_SUCCESS', (autologinLastSuccessMS) => {
+  console.log(`Message AUTOLOGIN_LAST_SUCCESS received (${autologinLastSuccessMS}, ${Date.now() - (autologinLastSuccessMS ?? 0)})`)
+  if (autologinLastSuccessMS && Date.now() - autologinLastSuccessMS < 5 * 1000) { // less than 5 seconds ago
+    showAutologinNotification()
+  }
+})
+
 function main() {
   sendMessage('MOODLE_LOAD')
   requestAutologinIfNeeded()
