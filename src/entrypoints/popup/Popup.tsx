@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { SearchField } from '@/features/search/SearchField'
 import { SearchAutoSyncToggle } from '@/features/search-sync/SearchAutoSyncToggle'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { TopBar } from '@/entrypoints/popup/TopBar'
@@ -14,6 +15,7 @@ export default function Popup() {
     <div className="min-w-md flex flex-col">
       <TopBar />
       <UsefulLinksSection />
+      <SearchField />
       <CoursesList />
       <SearchAutoSyncToggle />
     </div>
