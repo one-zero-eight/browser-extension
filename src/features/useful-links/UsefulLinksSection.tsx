@@ -4,7 +4,7 @@ export function UsefulLinksSection() {
   return (
     <div className="flex gap-2 p-2">
       <LinkButton href="https://innohassle.ru/dashboard" className="i-material-symbols-calendar-month-outline-rounded" />
-      <LinkButton href="https://moodle.innopolis.university" className="i-material-symbols-school-outline-rounded" />
+      <LinkButton href="https://moodle.innopolis.university/my/" className="i-material-symbols-school-outline-rounded" />
       <LinkButton href="https://sport.innopolis.university/" className="i-material-symbols-exercise-outline" />
       <LinkButton href="https://ipts.innopolis.university" className="i-material-symbols-loyalty-outline-rounded" />
       <LinkButton href="https://my.university.innopolis.ru" className="i-material-symbols-account-circle-outline" />
@@ -13,6 +13,8 @@ export function UsefulLinksSection() {
       <LinkButton href="https://mail.innopolis.ru" className="i-material-symbols-mail-outline-rounded" />
       <LinkButton href="https://portal.university.innopolis.ru/reading_hall/" className="i-material-symbols-book-2-outline" />
       <LinkButton href="https://hotel.innopolis.university/studentaccommodation/#block2944" className="i-material-symbols-night-shelter-outline-rounded" />
+      <LinkButton href="https://eduwiki.innopolis.university" className="i-streamline-quality-education" />
+      <LinkButton href="https://baam.duckdns.org/" className="i-material-symbols-qr-code-rounded" />
     </div>
   )
 }
