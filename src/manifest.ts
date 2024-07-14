@@ -33,7 +33,7 @@ export default defineManifest({
     },
     {
       // Injected into the moodle page to keep the session alive
-      resources: ['src/entrypoints/content-script-moodle/session-keepalive.js'],
+      resources: ['src/features/autologin/session-keepalive.js'],
       matches: ['https://moodle.innopolis.university/*'],
     },
   ],

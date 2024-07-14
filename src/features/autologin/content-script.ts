@@ -76,6 +76,6 @@ export function showAutologinNotification() {
 export function injectSessionKeepalive() {
   const script = document.createElement('script')
   script.type = 'text/javascript'
-  script.src = chrome.runtime.getURL('src/entrypoints/content-script-moodle/session-keepalive.js')
+  script.src = chrome.runtime.getURL('src/features/autologin/session-keepalive.js')
   document.body.appendChild(script)
 }
