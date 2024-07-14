@@ -42,3 +42,30 @@ export function redirectFromLogin(shouldGoToSSO: boolean = false) {
   console.log(`No wantsurl parameter found. Redirecting to ${href}`)
   window.location.href = href
 }
+
+export function showAutologinNotification() {
+  const notification = document.createElement('div')
+  notification.textContent = 'Autologin successful! By InNoHassle Tools'
+  notification.style.cssText = `
+    position: fixed;
+    bottom: 1rem;
+    right: 1rem;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    border-radius: 1rem;
+    z-index: 9999;
+    background-color: #9747ff;
+    font-size: 1rem;
+    font-weight: bold;
+    color: white;
+    text-align: center;
+  `
+
+  document.body.appendChild(notification)
+
+  setTimeout(() => {
+    notification.remove()
+  }, 2000)
+}
