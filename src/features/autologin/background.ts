@@ -4,7 +4,7 @@ import { getStored, setStored } from '@/shared/storage'
 
 export async function autoLogIn() {
   const enabled = await getStored('autologinEnabled')
-  if (!enabled) {
+  if (enabled === false) {
     console.log('Auto login is disabled, skipping')
     return false
   }
