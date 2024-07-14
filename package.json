@@ -2,7 +2,7 @@
   "name": "innohassle-browser-extension",
   "displayName": "InNoHassle Tools",
   "type": "module",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "private": true,
   "description": "Convenient tools for Moodle, InNoHassle and other services at Innopolis University.",
   "scripts": {
