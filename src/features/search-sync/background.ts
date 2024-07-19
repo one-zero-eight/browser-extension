@@ -179,6 +179,7 @@ async function syncAllCourses() {
       await sendFile(module, fileUrl)
     }).then(() => {
       state.currentUploads += 1
+      sendSyncProgress()
       console.log(`Uploaded files: ${state.currentUploads} / ${state.totalUploads}`)
     }),
   )
