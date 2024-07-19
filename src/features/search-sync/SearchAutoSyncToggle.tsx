@@ -1,3 +1,4 @@
+import { sendMessage } from '@/shared/messages'
 import { removeStored, setStored, useStorage } from '@/shared/storage'
 import { cn } from '@/shared/ui/utils'
 
@@ -16,8 +17,10 @@ export function SearchAutoSyncToggle() {
           allowSendingCourses === false ? 'bg-red-900' : 'bg-[#9747FF] hover:bg-[#6600CC]',
         )}
         onClick={() => {
-          setStored('allowSyncingCourses', !allowSendingCourses)
+          const shouldAllow = !allowSendingCourses
+          setStored('allowSyncingCourses', shouldAllow)
           removeStored('syncCoursesLastUpdateMS')
+          sendMessage(shouldAllow ? 'REQUEST_SYNC' : 'STOP_SYNC')
         }}
       >
         {allowSendingCourses === false ? 'OFF' : 'ON'}
