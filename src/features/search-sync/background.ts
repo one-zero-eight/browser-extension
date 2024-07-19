@@ -19,6 +19,8 @@ const state = {
   queue: pLimit(MAX_CONCURRENT_REQUESTS),
   totalUploads: 0,
   currentUploads: 0,
+  totalUploadSize: 0,
+  currentUploadSize: 0,
 }
 
 type CourseContents = MoodleClientFunctionTypes.CoreCourseGetContentsWSResponse
@@ -65,6 +67,8 @@ async function syncAllCourses() {
   state.queue.clearQueue()
   state.totalUploads = 0
   state.currentUploads = 0
+  state.totalUploadSize = 0
+  state.currentUploadSize = 0
 
   if (!state.isSyncingCourses)
     return // Stop syncing if the user disabled this feature
@@ -143,7 +147,7 @@ async function syncAllCourses() {
       }]
     }, [] as InContents[])
   }))
-  console.log(`Need to upload: ${needToUpload.length} modules`)
+  console.log(`Need to upload: ${needToUpload.length} files`)
 
   if (needToUpload.length === 0) {
     // No files to upload
@@ -164,23 +168,26 @@ async function syncAllCourses() {
     return [...acc, {
       module,
       fileUrl: originalContent.fileurl,
+      fileSize: originalContent.filesize,
     }]
-  }, [] as { module: FlattenInContentsWithPresignedUrl, fileUrl: string }[])
+  }, [] as { module: FlattenInContentsWithPresignedUrl, fileUrl: string, fileSize: number }[])
 
   // Upload course files to InNoHassle Search module by module
   // Limit the number of concurrent uploads
-  console.log(`Uploading ${toUpload.length} files`)
   state.totalUploads = toUpload.length
+  state.totalUploadSize = toUpload.reduce((acc, { fileSize }) => acc + fileSize, 0)
+  console.log(`Uploading ${state.totalUploads} files (${state.totalUploadSize} bytes)`)
   const promises = toUpload.map(
-    ({ module, fileUrl }) => state.queue(async () => {
+    ({ module, fileUrl, fileSize }) => state.queue(async () => {
       if (!state.isSyncingCourses)
         throw new Error('Syncing stopped') // Stop syncing if the user disabled this feature
 
       await sendFile(module, fileUrl)
     }).then(() => {
       state.currentUploads += 1
+      state.currentUploadSize += fileSize
       sendSyncProgress()
-      console.log(`Uploaded files: ${state.currentUploads} / ${state.totalUploads}`)
+      console.log(`Uploaded files: ${state.currentUploads} / ${state.totalUploads} (${state.currentUploadSize} / ${state.totalUploadSize} bytes)`)
     }),
   )
   await Promise.all(promises)
@@ -234,5 +241,7 @@ export function sendSyncProgress() {
     isSyncing: state.isSyncingCourses,
     current: state.currentUploads,
     total: state.totalUploads,
+    currentBytes: state.currentUploadSize,
+    totalBytes: state.totalUploadSize,
   })
 }

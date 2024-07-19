@@ -10,5 +10,5 @@ export interface Messages {
   REQUEST_SYNC: void
   STOP_SYNC: void
   REQUEST_SYNC_PROGRESS: void
-  SYNCING_PROGRESS: { isSyncing: boolean, current: number, total: number }
+  SYNCING_PROGRESS: { isSyncing: boolean, current: number, total: number, currentBytes: number, totalBytes: number }
 }
