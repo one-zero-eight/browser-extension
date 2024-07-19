@@ -17,14 +17,23 @@ export interface MoodlePreviewMoodleParams {
   filename: string
 }
 
+export type SearchAddUserFeedbackFeedback = typeof SearchAddUserFeedbackFeedback[keyof typeof SearchAddUserFeedbackFeedback]
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SearchAddUserFeedbackFeedback = {
+  like: 'like',
+  dislike: 'dislike',
+} as const
+
 export interface SearchAddUserFeedbackParams {
   response_index: number
-  feedback: string
+  feedback: SearchAddUserFeedbackFeedback
 }
 
 export interface SearchSearchByQueryParams {
   query: string
   limit?: number
+  use_ai?: boolean
 }
 
 export type ValidationErrorLocItem = string | number
@@ -58,27 +67,39 @@ export interface TelegramSource {
   type: TelegramSourceType
 }
 
+export type SearchTaskStatus = typeof SearchTaskStatus[keyof typeof SearchTaskStatus]
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SearchTaskStatus = {
+  pending: 'pending',
+  completed: 'completed',
+  failed: 'failed',
+} as const
+
+export interface SearchTask {
+  query: string
+  status: SearchTaskStatus
+  task_id: string
+}
+
+export type SearchResultStatus = typeof SearchResultStatus[keyof typeof SearchResultStatus]
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const SearchResultStatus = {
+  completed: 'completed',
+  failed: 'failed',
+} as const
+
+export interface SearchResult {
+  result?: MoodleFileResult[]
+  status: SearchResultStatus
+  task_id: string
+}
+
 /**
  * Assigned search query index
  */
 export type SearchResponsesSearchQueryId = string | null
-
-/**
- * Relevant source for the search.
- */
-export type SearchResponseSource = MoodleSource | TelegramSource
-
-/**
- * Score of the search response. Optional.
- */
-export type SearchResponseScore = number | null
-
-export interface SearchResponse {
-  /** Score of the search response. Optional. */
-  score: SearchResponseScore
-  /** Relevant source for the search. */
-  source: SearchResponseSource
-}
 
 export interface SearchResponses {
   /** Responses to the search query. */
@@ -89,67 +110,105 @@ export interface SearchResponses {
   searched_for: string
 }
 
+/**
+ * Relevant source for the search.
+ */
+export type SearchResponseSource = MoodleFileSource | MoodleUrlSource | MoodleUnknownSource | TelegramSource
+
+/**
+ * Score of the search response. Multiple scores if was an aggregation of multiple chunks. Optional.
+ */
+export type SearchResponseScore = number | number[] | null
+
+export interface SearchResponse {
+  /** Score of the search response. Multiple scores if was an aggregation of multiple chunks. Optional. */
+  score: SearchResponseScore
+  /** Relevant source for the search. */
+  source: SearchResponseSource
+}
+
 export interface PdfLocation {
   /** Page index in the PDF file. Starts from 1. */
   page_index: number
 }
 
-export type MoodleSourceType = typeof MoodleSourceType[keyof typeof MoodleSourceType]
+export type MoodleUrlSourceType = typeof MoodleUrlSourceType[keyof typeof MoodleUrlSourceType]
 
 // eslint-disable-next-line @typescript-eslint/no-redeclare
-export const MoodleSourceType = {
-  moodle: 'moodle',
+export const MoodleUrlSourceType = {
+  'moodle-url': 'moodle-url',
 } as const
 
-export type MoodleSourcePreviewLocation = PdfLocation | null
-
-/**
- * Filename of the resource.
- */
-export type MoodleSourceFilename = string | null
-
-export interface MoodleSource {
+export interface MoodleUrlSource {
   /** Breadcrumbs to the resource. */
   breadcrumbs: string[]
-  /** Course ID in the Moodle system. */
-  course_id: number
-  /** Course name in the Moodle system. */
-  course_name: string
   /** Display name of the resource. */
   display_name: string
-  /** Filename of the resource. */
-  filename: MoodleSourceFilename
   /** Anchor URL to the resource on Moodle. */
   link: string
-  /** Module ID in the Moodle system (resources). */
-  module_id: number
-  /** Module name in the Moodle system. */
-  module_name: string
-  preview_location: MoodleSourcePreviewLocation
-  /** URL to download the resource. */
-  resource_download_url: string
-  /** URL to get the preview of the resource. */
-  resource_preview_url: string
-  /** Type of the resource. */
-  resource_type: string
-  type: MoodleSourceType
+  type: MoodleUrlSourceType
+  /** URL of the resource */
+  url: string
 }
 
-export type MoodleEntrySectionSummary = string | null
+export type MoodleUnknownSourceType = typeof MoodleUnknownSourceType[keyof typeof MoodleUnknownSourceType]
 
-export type MoodleEntrySectionId = number | null
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MoodleUnknownSourceType = {
+  'moodle-unknown': 'moodle-unknown',
+} as const
 
-export interface MoodleEntry {
-  contents: MoodleContentSchemaOutput[]
-  course_fullname: string
+export interface MoodleUnknownSource {
+  /** Breadcrumbs to the resource. */
+  breadcrumbs: string[]
+  /** Display name of the resource. */
+  display_name: string
+  /** Anchor URL to the resource on Moodle. */
+  link: string
+  type: MoodleUnknownSourceType
+}
+
+export type MoodleFileSourceType = typeof MoodleFileSourceType[keyof typeof MoodleFileSourceType]
+
+// eslint-disable-next-line @typescript-eslint/no-redeclare
+export const MoodleFileSourceType = {
+  'moodle-file': 'moodle-file',
+} as const
+
+/**
+ * URL to get the preview of the resource.
+ */
+export type MoodleFileSourceResourcePreviewUrl = string | null
+
+/**
+ * URL to download the resource.
+ */
+export type MoodleFileSourceResourceDownloadUrl = string | null
+
+export type MoodleFileSourcePreviewLocation = PdfLocation | null
+
+export interface MoodleFileSource {
+  /** Breadcrumbs to the resource. */
+  breadcrumbs: string[]
+  /** Display name of the resource. */
+  display_name: string
+  /** Anchor URL to the resource on Moodle. */
+  link: string
+  preview_location: MoodleFileSourcePreviewLocation
+  /** URL to download the resource. */
+  resource_download_url: MoodleFileSourceResourceDownloadUrl
+  /** URL to get the preview of the resource. */
+  resource_preview_url: MoodleFileSourceResourcePreviewUrl
+  type: MoodleFileSourceType
+}
+
+export type MoodleFileResultScore = number[] | number | null
+
+export interface MoodleFileResult {
   course_id: number
-  /** MongoDB document ObjectID */
-  id: string
+  filename: string
   module_id: number
-  module_modname: string
-  module_name: string
-  section_id: MoodleEntrySectionId
-  section_summary: MoodleEntrySectionSummary
+  score?: MoodleFileResultScore
 }
 
 export interface MoodleCourse {
@@ -171,6 +230,20 @@ export interface MoodleContentSchemaOutput {
   timecreated: MoodleContentSchemaOutputTimecreated
   timemodified: MoodleContentSchemaOutputTimemodified
   type: string
+  uploaded: boolean
+}
+
+export interface MoodleEntry {
+  contents: MoodleContentSchemaOutput[]
+  course_fullname: string
+  course_id: number
+  /** MongoDB document ObjectID */
+  id: string
+  module_id: number
+  module_modname: string
+  module_name: string
+  section_id: number
+  section_summary: string
 }
 
 export type MoodleContentSchemaInputTimemodified = number | null
@@ -182,6 +255,20 @@ export interface MoodleContentSchemaInput {
   timecreated?: MoodleContentSchemaInputTimecreated
   timemodified?: MoodleContentSchemaInputTimemodified
   type: string
+  uploaded?: boolean
+}
+
+export type MessageSchemaText = string | null
+
+export type MessageSchemaCaption = string | null
+
+export interface MessageSchema {
+  caption: MessageSchemaCaption
+  chat: Chat
+  date: string
+  id: number
+  sender_chat: Chat
+  text: MessageSchemaText
 }
 
 export interface InModule {
@@ -215,14 +302,14 @@ export interface InCourses {
   courses: InCourse[]
 }
 
-export interface InContentsOutput {
-  contents: MoodleContentSchemaOutput[]
+export interface InContents {
+  contents: MoodleContentSchemaInput[]
   course_id: number
   module_id: number
 }
 
-export interface InContentsInput {
-  contents: MoodleContentSchemaInput[]
+export interface InContent {
+  content: MoodleContentSchemaInput
   course_id: number
   module_id: number
 }
@@ -231,9 +318,37 @@ export interface HTTPValidationError {
   detail?: ValidationError[]
 }
 
-export interface BodyMoodleUploadContent {
-  data: string
-  files: Blob[]
+export interface FlattenInContentsWithPresignedUrl {
+  content: MoodleContentSchemaOutput
+  course_id: number
+  module_id: number
+  presigned_url: string
+}
+
+export interface Detail {
+  detail: string
+}
+
+export type DBMessageSchemaText = string | null
+
+export type DBMessageSchemaCaption = string | null
+
+export interface DBMessageSchema {
+  caption: DBMessageSchemaCaption
+  chat_id: number
+  chat_title: string
+  chat_username: string
+  date: string
+  link: string
+  message_id: number
+  text: DBMessageSchemaText
+}
+
+export interface Chat {
+  id: number
+  title: string
+  type: string
+  username: string
 }
 
 type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1]
@@ -267,6 +382,20 @@ export function getInNoHassleSearch() {
   }
 
   /**
+   * Determining whether to save the message or overwrite it
+   * @summary Save Or Update Message
+   */
+  const telegramSaveOrUpdateMessage = (
+    messageSchema: MessageSchema,
+    options?: SecondParameter<typeof searchQueryPromise>,
+  ) => {
+    return searchQueryPromise<DBMessageSchema>(
+      { url: `/telegram/messages`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: messageSchema },
+      options,
+    )
+  }
+
+  /**
    * @summary Preview Moodle
    */
   const moodlePreviewMoodle = (
@@ -293,19 +422,6 @@ export function getInNoHassleSearch() {
   }
 
   /**
-   * @summary Batch Upsert Courses
-   */
-  const moodleBatchUpsertCourses = (
-    inCourses: InCourses,
-    options?: SecondParameter<typeof searchQueryPromise>,
-  ) => {
-    return searchQueryPromise<unknown>(
-      { url: `/moodle/batch-courses`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inCourses },
-      options,
-    )
-  }
-
-  /**
    * @summary Courses
    */
   const moodleCourses = (
@@ -319,14 +435,14 @@ export function getInNoHassleSearch() {
   }
 
   /**
-   * @summary Course Content
+   * @summary Batch Upsert Courses
    */
-  const moodleCourseContent = (
-    inSections: InSections,
+  const moodleBatchUpsertCourses = (
+    inCourses: InCourses,
     options?: SecondParameter<typeof searchQueryPromise>,
   ) => {
     return searchQueryPromise<unknown>(
-      { url: `/moodle/set-course-content`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inSections },
+      { url: `/moodle/batch-courses`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inCourses },
       options,
     )
   }
@@ -345,44 +461,96 @@ export function getInNoHassleSearch() {
   }
 
   /**
-   * @summary Need To Upload Contents
+   * @summary Course Content
    */
-  const moodleNeedToUploadContents = (
-    inContentsInput: InContentsInput[],
+  const moodleCourseContent = (
+    inSections: InSections[],
     options?: SecondParameter<typeof searchQueryPromise>,
   ) => {
-    return searchQueryPromise<InContentsOutput[]>(
-      { url: `/moodle/need-to-upload-contents`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inContentsInput },
+    return searchQueryPromise<unknown>(
+      { url: `/moodle/set-course-content`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inSections },
       options,
     )
   }
 
   /**
-   * @summary Upload Content
+   * @summary Need To Upload Contents
    */
-  const moodleUploadContent = (
-    bodyMoodleUploadContent: BodyMoodleUploadContent,
+  const moodleNeedToUploadContents = (
+    inContents: InContents[],
     options?: SecondParameter<typeof searchQueryPromise>,
   ) => {
-    const formData = new FormData()
-    bodyMoodleUploadContent.files.forEach(value => formData.append('files', value))
-    formData.append('data', bodyMoodleUploadContent.data)
-
-    return searchQueryPromise<unknown>(
-      { url: `/moodle/upload-contents`, method: 'POST', headers: { 'Content-Type': 'multipart/form-data' }, data: formData },
+    return searchQueryPromise<FlattenInContentsWithPresignedUrl[]>(
+      { url: `/moodle/need-to-upload-contents`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inContents },
       options,
     )
   }
 
-  return { searchSearchByQuery, searchAddUserFeedback, moodlePreviewMoodle, moodleGetMoodleFiles, moodleBatchUpsertCourses, moodleCourses, moodleCourseContent, moodleCoursesContent, moodleNeedToUploadContents, moodleUploadContent }
+  /**
+   * @summary Content Uploaded
+   */
+  const moodleContentUploaded = (
+    inContent: InContent,
+    options?: SecondParameter<typeof searchQueryPromise>,
+  ) => {
+    return searchQueryPromise<unknown>(
+      { url: `/moodle/content-uploaded`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: inContent },
+      options,
+    )
+  }
+
+  /**
+   * @summary Get Corpora
+   */
+  const computeGetCorpora = (
+
+    options?: SecondParameter<typeof searchQueryPromise>) => {
+    return searchQueryPromise<unknown>(
+      { url: `/compute/corpora`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * @summary Get Pending Search Queries
+   */
+  const computeGetPendingSearchQueries = (
+
+    options?: SecondParameter<typeof searchQueryPromise>) => {
+    return searchQueryPromise<SearchTask[]>(
+      { url: `/compute/pending-searchs`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * @summary Post Completed Search Queries
+   */
+  const computePostCompletedSearchQueries = (
+    searchResult: SearchResult[],
+    options?: SecondParameter<typeof searchQueryPromise>,
+  ) => {
+    return searchQueryPromise<unknown>(
+      { url: `/compute/completed-searchs`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: searchResult },
+      options,
+    )
+  }
+
+  return { searchSearchByQuery, searchAddUserFeedback, telegramSaveOrUpdateMessage, moodlePreviewMoodle, moodleGetMoodleFiles, moodleCourses, moodleBatchUpsertCourses, moodleCoursesContent, moodleCourseContent, moodleNeedToUploadContents, moodleContentUploaded, computeGetCorpora, computeGetPendingSearchQueries, computePostCompletedSearchQueries }
 }
 export type SearchSearchByQueryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['searchSearchByQuery']>>>
 export type SearchAddUserFeedbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['searchAddUserFeedback']>>>
+export type TelegramSaveOrUpdateMessageResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['telegramSaveOrUpdateMessage']>>>
 export type MoodlePreviewMoodleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodlePreviewMoodle']>>>
 export type MoodleGetMoodleFilesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleGetMoodleFiles']>>>
-export type MoodleBatchUpsertCoursesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleBatchUpsertCourses']>>>
 export type MoodleCoursesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleCourses']>>>
-export type MoodleCourseContentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleCourseContent']>>>
+export type MoodleBatchUpsertCoursesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleBatchUpsertCourses']>>>
 export type MoodleCoursesContentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleCoursesContent']>>>
+export type MoodleCourseContentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleCourseContent']>>>
 export type MoodleNeedToUploadContentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleNeedToUploadContents']>>>
-export type MoodleUploadContentResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleUploadContent']>>>
+export type MoodleContentUploadedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleContentUploaded']>>>
+export type ComputeGetCorporaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computeGetCorpora']>>>
+export type ComputeGetPendingSearchQueriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computeGetPendingSearchQueries']>>>
+export type ComputePostCompletedSearchQueriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computePostCompletedSearchQueries']>>>

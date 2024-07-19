@@ -27,6 +27,7 @@
     "moodle-typed-ws": "^0.4.0",
     "object-to-formdata": "^4.5.1",
     "orval": "^6.31.0",
+    "p-limit": "^6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "tailwind-merge": "^2.3.0"
