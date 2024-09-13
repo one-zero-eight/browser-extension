@@ -24,4 +24,5 @@ export interface SharedStorage {
   allowSyncingCourses: boolean
   syncCoursesLastUpdateMS: number
   innohassleSearchUrl: string
+  innohassleEventsUrl: string
 }
