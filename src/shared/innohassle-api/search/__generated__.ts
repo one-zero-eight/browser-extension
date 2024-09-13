@@ -33,7 +33,6 @@ export interface SearchAddUserFeedbackParams {
 export interface SearchSearchByQueryParams {
   query: string
   limit?: number
-  use_ai?: boolean
 }
 
 export type ValidationErrorLocItem = string | number
@@ -65,35 +64,6 @@ export interface TelegramSource {
   /** Message ID in the chat */
   message_id: number
   type: TelegramSourceType
-}
-
-export type SearchTaskStatus = typeof SearchTaskStatus[keyof typeof SearchTaskStatus]
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SearchTaskStatus = {
-  pending: 'pending',
-  completed: 'completed',
-  failed: 'failed',
-} as const
-
-export interface SearchTask {
-  query: string
-  status: SearchTaskStatus
-  task_id: string
-}
-
-export type SearchResultStatus = typeof SearchResultStatus[keyof typeof SearchResultStatus]
-
-// eslint-disable-next-line @typescript-eslint/no-redeclare
-export const SearchResultStatus = {
-  completed: 'completed',
-  failed: 'failed',
-} as const
-
-export interface SearchResult {
-  result?: MoodleFileResult[]
-  status: SearchResultStatus
-  task_id: string
 }
 
 /**
@@ -200,15 +170,6 @@ export interface MoodleFileSource {
   /** URL to get the preview of the resource. */
   resource_preview_url: MoodleFileSourceResourcePreviewUrl
   type: MoodleFileSourceType
-}
-
-export type MoodleFileResultScore = number[] | number | null
-
-export interface MoodleFileResult {
-  course_id: number
-  filename: string
-  module_id: number
-  score?: MoodleFileResultScore
 }
 
 export interface MoodleCourse {
@@ -512,33 +473,7 @@ export function getInNoHassleSearch() {
     )
   }
 
-  /**
-   * @summary Get Pending Search Queries
-   */
-  const computeGetPendingSearchQueries = (
-
-    options?: SecondParameter<typeof searchQueryPromise>) => {
-    return searchQueryPromise<SearchTask[]>(
-      { url: `/compute/pending-searchs`, method: 'GET',
-      },
-      options,
-    )
-  }
-
-  /**
-   * @summary Post Completed Search Queries
-   */
-  const computePostCompletedSearchQueries = (
-    searchResult: SearchResult[],
-    options?: SecondParameter<typeof searchQueryPromise>,
-  ) => {
-    return searchQueryPromise<unknown>(
-      { url: `/compute/completed-searchs`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: searchResult },
-      options,
-    )
-  }
-
-  return { searchSearchByQuery, searchAddUserFeedback, telegramSaveOrUpdateMessage, moodlePreviewMoodle, moodleGetMoodleFiles, moodleCourses, moodleBatchUpsertCourses, moodleCoursesContent, moodleCourseContent, moodleNeedToUploadContents, moodleContentUploaded, computeGetCorpora, computeGetPendingSearchQueries, computePostCompletedSearchQueries }
+  return { searchSearchByQuery, searchAddUserFeedback, telegramSaveOrUpdateMessage, moodlePreviewMoodle, moodleGetMoodleFiles, moodleCourses, moodleBatchUpsertCourses, moodleCoursesContent, moodleCourseContent, moodleNeedToUploadContents, moodleContentUploaded, computeGetCorpora }
 }
 export type SearchSearchByQueryResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['searchSearchByQuery']>>>
 export type SearchAddUserFeedbackResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['searchAddUserFeedback']>>>
@@ -552,5 +487,3 @@ export type MoodleCourseContentResult = NonNullable<Awaited<ReturnType<ReturnTyp
 export type MoodleNeedToUploadContentsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleNeedToUploadContents']>>>
 export type MoodleContentUploadedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['moodleContentUploaded']>>>
 export type ComputeGetCorporaResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computeGetCorpora']>>>
-export type ComputeGetPendingSearchQueriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computeGetPendingSearchQueries']>>>
-export type ComputePostCompletedSearchQueriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleSearch>['computePostCompletedSearchQueries']>>>
