@@ -1,6 +1,7 @@
 import { applyUserAgentRule } from '@/entrypoints/background/net-rules'
 import { autoLogIn } from '@/features/autologin/background'
 import { fetchCourses } from '@/features/courses/background'
+import { syncMoodleCalendarUrl } from '@/features/moodle-calendar-url/background'
 import { sendSyncProgress, stopSync, syncCourses } from '@/features/search-sync/background'
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
@@ -14,6 +15,7 @@ onMessage('POPUP_OPEN', () => {
   console.log('Background has received a message POPUP_OPEN')
   fetchCourses()
   syncCourses()
+  syncMoodleCalendarUrl()
 })
 
 onMessage('MOODLE_LOAD', () => {
@@ -36,6 +38,8 @@ onMessage('MOODLE_LOAD', () => {
         else {
           // Run the worker if needed
           syncCourses()
+          // Sync the calendar url if needed
+          syncMoodleCalendarUrl()
         }
       })
     }
