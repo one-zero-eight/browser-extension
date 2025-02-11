@@ -1,9 +1,14 @@
-import { MOODLE_DASHBOARD_URL, MOODLE_LOGIN_URL, MOODLE_MOBILE_LAUNCH_URL } from '@/shared/config/moodle'
+import {
+  MOODLE_DASHBOARD_URL,
+  MOODLE_LOGIN_URL,
+  MOODLE_MOBILE_LAUNCH_URL,
+  MOODLE_OAUTH2_LOGIN_URL,
+} from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
 import { setStored } from '@/shared/storage'
 
 export function requestAutologinIfNeeded() {
-  if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
+  if (window.location.href.startsWith(MOODLE_LOGIN_URL) || window.location.href.startsWith(MOODLE_OAUTH2_LOGIN_URL)) {
     sendMessage('REQUEST_AUTOLOGIN')
   }
   else if (window.location.href.startsWith(MOODLE_MOBILE_LAUNCH_URL)) {
@@ -15,7 +20,7 @@ export function requestAutologinIfNeeded() {
 }
 
 export function refreshPageOnAutologin() {
-  if (window.location.href.startsWith(MOODLE_LOGIN_URL)) {
+  if (window.location.href.startsWith(MOODLE_LOGIN_URL) || window.location.href.startsWith(MOODLE_OAUTH2_LOGIN_URL)) {
     redirectFromLogin()
   }
   else {
