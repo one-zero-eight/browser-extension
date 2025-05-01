@@ -1,5 +1,5 @@
-import { getInNoHassleSearch } from './__generated__'
+import { getInNoHassleSearchAPI } from './__generated__'
 
 export type * from './__generated__'
 
-export const search = getInNoHassleSearch()
+export const search = getInNoHassleSearchAPI()

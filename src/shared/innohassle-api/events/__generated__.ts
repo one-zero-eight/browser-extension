@@ -14,46 +14,12 @@ Backend is developed using FastAPI framework on Python.
 Note: API is unstable. Endpoints and models may change in the future.
 
 Useful links:
-- [Backend source code](https://github.com/one-zero-eight/InNoHassle-Events)
-- [Frontend source code](https://github.com/one-zero-eight/InNoHassle-Website)
-- [Website](https://innohassle.ru/schedule)
+- [Events API source code](https://github.com/one-zero-eight/events)
+- [InNoHassle Website](https://innohassle.ru/schedule)
 
  * OpenAPI spec version: 0.1.0
  */
 import { eventsQueryPromise } from './axios'
-
-export interface IcsGetEventGroupIcsByAliasParams {
-  user_id: number
-  export_type: string
-}
-
-export interface IcsGetMoodleCurrentUserScheduleParams {
-  access_key: string
-}
-
-export interface IcsGetSportUserScheduleParams {
-  access_key: string
-}
-
-export interface IcsGetMusicRoomUserScheduleParams {
-  access_key: string
-}
-
-export interface IcsGetUserScheduleParams {
-  access_key: string
-}
-
-export interface EventGroupsDeleteEventGroupByAliasParams {
-  alias: string
-}
-
-export interface EventGroupsFindEventGroupByAliasParams {
-  alias: string
-}
-
-export interface EventGroupsFindEventGroupByPathParams {
-  path: string
-}
 
 export interface UsersSetUserMoodleDataParams {
   moodle_userid: number
@@ -84,6 +50,51 @@ export interface UsersDeleteFavoriteParams {
 
 export interface UsersAddFavoriteParams {
   group_id: number
+}
+
+export interface TagsDeleteTagByTypeParams {
+  tag_type: string
+}
+
+export interface TagsDeleteTagParams {
+  tag_alias: string
+}
+
+export interface IcsGetEventGroupIcsByAliasParams {
+  user_id: number
+  export_type: string
+}
+
+export interface IcsGetMoodleCurrentUserScheduleParams {
+  access_key: string
+}
+
+export interface IcsGetSportUserScheduleParams {
+  access_key: string
+}
+
+export interface IcsGetMusicRoomUserScheduleParams {
+  access_key: string
+}
+
+export interface IcsGetUserScheduleParams {
+  access_key: string
+}
+
+export interface EventGroupsDeleteEventGroupByTagAliasParams {
+  tag_alias: string
+}
+
+export interface EventGroupsDeleteEventGroupByAliasParams {
+  alias: string
+}
+
+export interface EventGroupsFindEventGroupByAliasParams {
+  alias: string
+}
+
+export interface EventGroupsFindEventGroupByPathParams {
+  path: string
 }
 
 export interface Workshop {
@@ -210,14 +221,7 @@ export interface ListTagsResponse {
 /**
  * Represents a list of event groups.
  */
-export interface ListEventGroupsResponseOutput {
-  event_groups: ViewEventGroup[]
-}
-
-/**
- * Represents a list of event groups.
- */
-export interface ListEventGroupsResponseInput {
+export interface ListEventGroupsResponse {
   event_groups: ViewEventGroup[]
 }
 
@@ -381,167 +385,13 @@ type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1]
 
 export function getInNoHassleEventsAPI() {
 /**
- * Get current user info if authenticated
- * @summary Get Me
+ * Get a list of all event groups
+ * @summary List Event Groups
  */
-  const usersGetMe = (
-
-    options?: SecondParameter<typeof eventsQueryPromise>) => {
-    return eventsQueryPromise<ViewUser>(
-      { url: `/users/me`, method: 'GET',
-      },
-      options,
-    )
-  }
-
-  /**
-   * Get predefined event groups for user
-   * @summary Get Predefined
-   */
-  const usersGetPredefined = (
-
-    options?: SecondParameter<typeof eventsQueryPromise>) => {
-    return eventsQueryPromise<UserPredefinedGroupsResponse>(
-      { url: `/users/me/predefined`, method: 'GET',
-      },
-      options,
-    )
-  }
-
-  /**
-   * Add favorite to current user
-   * @summary Add Favorite
-   */
-  const usersAddFavorite = (
-    params: UsersAddFavoriteParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<ViewUser>(
-      { url: `/users/me/favorites`, method: 'POST', params },
-      options,
-    )
-  }
-
-  /**
-   * Delete favorite from current user
-   * @summary Delete Favorite
-   */
-  const usersDeleteFavorite = (
-    params: UsersDeleteFavoriteParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<ViewUser>(
-      { url: `/users/me/favorites`, method: 'DELETE', params },
-      options,
-    )
-  }
-
-  /**
-   * Hide favorite from current user
-   * @summary Hide Favorite
-   */
-  const usersHideFavorite = (
-    params: UsersHideFavoriteParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<ViewUser>(
-      { url: `/users/me/favorites/hide`, method: 'POST', params },
-      options,
-    )
-  }
-
-  /**
-   * Hide music room, sports or moodle from current user
-   * @summary Hide Target
-   */
-  const usersHideTarget = (
-    target: 'music-room' | 'sports' | 'moodle',
-    params?: UsersHideTargetParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<ViewUser>(
-      { url: `/users/me/${target}/hide`, method: 'POST', params },
-      options,
-    )
-  }
-
-  /**
-   * Add linked calendar to current user
-   * @summary Link Calendar
-   */
-  const usersLinkCalendar = (
-    linkedCalendarCreate: LinkedCalendarCreate,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<LinkedCalendarView>(
-      { url: `/users/me/linked`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: linkedCalendarCreate },
-      options,
-    )
-  }
-
-  /**
-   * Generate an access key for the user schedule
-   * @summary Generate User Schedule Key
-   */
-  const usersGenerateUserScheduleKey = (
-    params: UsersGenerateUserScheduleKeyParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<_GetScheduleAccessKeyResponse>(
-      { url: `/users/me/get-schedule-access-key`, method: 'POST', params },
-      options,
-    )
-  }
-
-  /**
-   * Get all access keys for the user schedule
-   * @summary Get User Schedule Keys
-   */
-  const usersGetUserScheduleKeys = (
-
-    options?: SecondParameter<typeof eventsQueryPromise>) => {
-    return eventsQueryPromise<ViewUserScheduleKey[]>(
-      { url: `/users/me/schedule-access-keys`, method: 'GET',
-      },
-      options,
-    )
-  }
-
-  /**
-   * Delete an access key for the user schedule
-   * @summary Delete User Schedule Key
-   */
-  const usersDeleteUserScheduleKey = (
-    params: UsersDeleteUserScheduleKeyParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<unknown>(
-      { url: `/users/me/schedule-access-key`, method: 'DELETE', params },
-      options,
-    )
-  }
-
-  /**
-   * @summary Set User Moodle Data
-   */
-  const usersSetUserMoodleData = (
-    params: UsersSetUserMoodleDataParams,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<unknown>(
-      { url: `/users/me/set-moodle`, method: 'POST', params },
-      options,
-    )
-  }
-
-  /**
-   * Get a list of all event groups
-   * @summary List Event Groups
-   */
   const eventGroupsListEventGroups = (
 
     options?: SecondParameter<typeof eventsQueryPromise>) => {
-    return eventsQueryPromise<ListEventGroupsResponseInput>(
+    return eventsQueryPromise<ListEventGroupsResponse>(
       { url: `/event-groups/`, method: 'GET',
       },
       options,
@@ -568,7 +418,7 @@ export function getInNoHassleEventsAPI() {
     bodyEventGroupsBatchCreateEventGroups: BodyEventGroupsBatchCreateEventGroups,
     options?: SecondParameter<typeof eventsQueryPromise>,
   ) => {
-    return eventsQueryPromise<ListEventGroupsResponseInput>(
+    return eventsQueryPromise<ListEventGroupsResponse>(
       { url: `/event-groups/batch-create-or-read`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: bodyEventGroupsBatchCreateEventGroups },
       options,
     )
@@ -646,6 +496,20 @@ export function getInNoHassleEventsAPI() {
   }
 
   /**
+   * Delete event groups by its tag alias
+   * @summary Delete Event Group By Tag Alias
+   */
+  const eventGroupsDeleteEventGroupByTagAlias = (
+    params: EventGroupsDeleteEventGroupByTagAliasParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<number>(
+      { url: `/event-groups/by-tag-alias`, method: 'DELETE', params },
+      options,
+    )
+  }
+
+  /**
    * Load .ics file to event group by event group id and save file to predefined path
    * @summary Set Event Group Ics
    */
@@ -659,34 +523,6 @@ export function getInNoHassleEventsAPI() {
 
     return eventsQueryPromise<void | unknown>(
       { url: `/event-groups/${eventGroupId}/schedule.ics`, method: 'PUT', headers: { 'Content-Type': 'multipart/form-data' }, data: formData },
-      options,
-    )
-  }
-
-  /**
-   * Get a list of all tags
-   * @summary List Tags
-   */
-  const tagsListTags = (
-
-    options?: SecondParameter<typeof eventsQueryPromise>) => {
-    return eventsQueryPromise<ListTagsResponse>(
-      { url: `/tags/`, method: 'GET',
-      },
-      options,
-    )
-  }
-
-  /**
-   * Create tags in batch
-   * @summary Batch Create Tags
-   */
-  const tagsBatchCreateTags = (
-    bodyTagsBatchCreateTags: BodyTagsBatchCreateTags,
-    options?: SecondParameter<typeof eventsQueryPromise>,
-  ) => {
-    return eventsQueryPromise<ListTagsResponse>(
-      { url: `/tags/batch-create-or-read`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: bodyTagsBatchCreateTags },
       options,
     )
   }
@@ -906,6 +742,216 @@ export function getInNoHassleEventsAPI() {
   }
 
   /**
+   * Get a list of all tags
+   * @summary List Tags
+   */
+  const tagsListTags = (
+
+    options?: SecondParameter<typeof eventsQueryPromise>) => {
+    return eventsQueryPromise<ListTagsResponse>(
+      { url: `/tags/`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * Create tags in batch
+   * @summary Batch Create Tags
+   */
+  const tagsBatchCreateTags = (
+    bodyTagsBatchCreateTags: BodyTagsBatchCreateTags,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<ListTagsResponse>(
+      { url: `/tags/batch-create-or-read`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: bodyTagsBatchCreateTags },
+      options,
+    )
+  }
+
+  /**
+   * Delete tag by alias
+   * @summary Delete Tag
+   */
+  const tagsDeleteTag = (
+    params: TagsDeleteTagParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<unknown>(
+      { url: `/tags/by-alias`, method: 'DELETE', params },
+      options,
+    )
+  }
+
+  /**
+   * Delete tag by type
+   * @summary Delete Tag By Type
+   */
+  const tagsDeleteTagByType = (
+    params: TagsDeleteTagByTypeParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<unknown>(
+      { url: `/tags/by-type`, method: 'DELETE', params },
+      options,
+    )
+  }
+
+  /**
+   * Get current user info if authenticated
+   * @summary Get Me
+   */
+  const usersGetMe = (
+
+    options?: SecondParameter<typeof eventsQueryPromise>) => {
+    return eventsQueryPromise<ViewUser>(
+      { url: `/users/me`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * Get predefined event groups for user
+   * @summary Get Predefined
+   */
+  const usersGetPredefined = (
+
+    options?: SecondParameter<typeof eventsQueryPromise>) => {
+    return eventsQueryPromise<UserPredefinedGroupsResponse>(
+      { url: `/users/me/predefined`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * Add favorite to current user
+   * @summary Add Favorite
+   */
+  const usersAddFavorite = (
+    params: UsersAddFavoriteParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<ViewUser>(
+      { url: `/users/me/favorites`, method: 'POST', params },
+      options,
+    )
+  }
+
+  /**
+   * Delete favorite from current user
+   * @summary Delete Favorite
+   */
+  const usersDeleteFavorite = (
+    params: UsersDeleteFavoriteParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<ViewUser>(
+      { url: `/users/me/favorites`, method: 'DELETE', params },
+      options,
+    )
+  }
+
+  /**
+   * Hide favorite from current user
+   * @summary Hide Favorite
+   */
+  const usersHideFavorite = (
+    params: UsersHideFavoriteParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<ViewUser>(
+      { url: `/users/me/favorites/hide`, method: 'POST', params },
+      options,
+    )
+  }
+
+  /**
+   * Hide music room, sports or moodle from current user
+   * @summary Hide Target
+   */
+  const usersHideTarget = (
+    target: 'music-room' | 'sports' | 'moodle',
+    params?: UsersHideTargetParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<ViewUser>(
+      { url: `/users/me/${target}/hide`, method: 'POST', params },
+      options,
+    )
+  }
+
+  /**
+   * Add linked calendar to current user
+   * @summary Link Calendar
+   */
+  const usersLinkCalendar = (
+    linkedCalendarCreate: LinkedCalendarCreate,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<LinkedCalendarView>(
+      { url: `/users/me/linked`, method: 'POST', headers: { 'Content-Type': 'application/json' }, data: linkedCalendarCreate },
+      options,
+    )
+  }
+
+  /**
+   * Generate an access key for the user schedule
+   * @summary Generate User Schedule Key
+   */
+  const usersGenerateUserScheduleKey = (
+    params: UsersGenerateUserScheduleKeyParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<_GetScheduleAccessKeyResponse>(
+      { url: `/users/me/get-schedule-access-key`, method: 'POST', params },
+      options,
+    )
+  }
+
+  /**
+   * Get all access keys for the user schedule
+   * @summary Get User Schedule Keys
+   */
+  const usersGetUserScheduleKeys = (
+
+    options?: SecondParameter<typeof eventsQueryPromise>) => {
+    return eventsQueryPromise<ViewUserScheduleKey[]>(
+      { url: `/users/me/schedule-access-keys`, method: 'GET',
+      },
+      options,
+    )
+  }
+
+  /**
+   * Delete an access key for the user schedule
+   * @summary Delete User Schedule Key
+   */
+  const usersDeleteUserScheduleKey = (
+    params: UsersDeleteUserScheduleKeyParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<unknown>(
+      { url: `/users/me/schedule-access-key`, method: 'DELETE', params },
+      options,
+    )
+  }
+
+  /**
+   * @summary Set User Moodle Data
+   */
+  const usersSetUserMoodleData = (
+    params: UsersSetUserMoodleDataParams,
+    options?: SecondParameter<typeof eventsQueryPromise>,
+  ) => {
+    return eventsQueryPromise<unknown>(
+      { url: `/users/me/set-moodle`, method: 'POST', params },
+      options,
+    )
+  }
+
+  /**
    * Endpoint that serves Prometheus metrics.
    * @summary Metrics
    */
@@ -919,19 +965,8 @@ export function getInNoHassleEventsAPI() {
     )
   }
 
-  return { usersGetMe, usersGetPredefined, usersAddFavorite, usersDeleteFavorite, usersHideFavorite, usersHideTarget, usersLinkCalendar, usersGenerateUserScheduleKey, usersGetUserScheduleKeys, usersDeleteUserScheduleKey, usersSetUserMoodleData, eventGroupsListEventGroups, eventGroupsCreateEventGroup, eventGroupsBatchCreateEventGroups, eventGroupsUpdateEventGroup, eventGroupsGetEventGroup, eventGroupsFindEventGroupByPath, eventGroupsFindEventGroupByAlias, eventGroupsDeleteEventGroupByAlias, eventGroupsSetEventGroupIcs, tagsListTags, tagsBatchCreateTags, icsGetCurrentUserSchedule, icsGetUserSchedule, icsGetMusicRoomCurrentUserSchedule, icsGetMusicRoomUserSchedule, icsGetSportCurrentUserSchedule, icsGetSportUserSchedule, icsGetMoodleUserSchedule, icsGetMoodleCurrentUserSchedule, icsGetUserLinkedSchedule, icsGetMusicRoomSchedule, icsGetEventGroupIcsByAlias, parseParseCleaningSchedule, parseParseBootcampSchedule, predefinedGetPredefinedData, predefinedUpdatePredefinedData, metrics }
+  return { eventGroupsListEventGroups, eventGroupsCreateEventGroup, eventGroupsBatchCreateEventGroups, eventGroupsUpdateEventGroup, eventGroupsGetEventGroup, eventGroupsFindEventGroupByPath, eventGroupsFindEventGroupByAlias, eventGroupsDeleteEventGroupByAlias, eventGroupsDeleteEventGroupByTagAlias, eventGroupsSetEventGroupIcs, icsGetCurrentUserSchedule, icsGetUserSchedule, icsGetMusicRoomCurrentUserSchedule, icsGetMusicRoomUserSchedule, icsGetSportCurrentUserSchedule, icsGetSportUserSchedule, icsGetMoodleUserSchedule, icsGetMoodleCurrentUserSchedule, icsGetUserLinkedSchedule, icsGetMusicRoomSchedule, icsGetEventGroupIcsByAlias, parseParseCleaningSchedule, parseParseBootcampSchedule, predefinedGetPredefinedData, predefinedUpdatePredefinedData, tagsListTags, tagsBatchCreateTags, tagsDeleteTag, tagsDeleteTagByType, usersGetMe, usersGetPredefined, usersAddFavorite, usersDeleteFavorite, usersHideFavorite, usersHideTarget, usersLinkCalendar, usersGenerateUserScheduleKey, usersGetUserScheduleKeys, usersDeleteUserScheduleKey, usersSetUserMoodleData, metrics }
 }
-export type UsersGetMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetMe']>>>
-export type UsersGetPredefinedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetPredefined']>>>
-export type UsersAddFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersAddFavorite']>>>
-export type UsersDeleteFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersDeleteFavorite']>>>
-export type UsersHideFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersHideFavorite']>>>
-export type UsersHideTargetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersHideTarget']>>>
-export type UsersLinkCalendarResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersLinkCalendar']>>>
-export type UsersGenerateUserScheduleKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGenerateUserScheduleKey']>>>
-export type UsersGetUserScheduleKeysResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetUserScheduleKeys']>>>
-export type UsersDeleteUserScheduleKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersDeleteUserScheduleKey']>>>
-export type UsersSetUserMoodleDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersSetUserMoodleData']>>>
 export type EventGroupsListEventGroupsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsListEventGroups']>>>
 export type EventGroupsCreateEventGroupResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsCreateEventGroup']>>>
 export type EventGroupsBatchCreateEventGroupsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsBatchCreateEventGroups']>>>
@@ -940,9 +975,8 @@ export type EventGroupsGetEventGroupResult = NonNullable<Awaited<ReturnType<Retu
 export type EventGroupsFindEventGroupByPathResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsFindEventGroupByPath']>>>
 export type EventGroupsFindEventGroupByAliasResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsFindEventGroupByAlias']>>>
 export type EventGroupsDeleteEventGroupByAliasResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsDeleteEventGroupByAlias']>>>
+export type EventGroupsDeleteEventGroupByTagAliasResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsDeleteEventGroupByTagAlias']>>>
 export type EventGroupsSetEventGroupIcsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['eventGroupsSetEventGroupIcs']>>>
-export type TagsListTagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsListTags']>>>
-export type TagsBatchCreateTagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsBatchCreateTags']>>>
 export type IcsGetCurrentUserScheduleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['icsGetCurrentUserSchedule']>>>
 export type IcsGetUserScheduleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['icsGetUserSchedule']>>>
 export type IcsGetMusicRoomCurrentUserScheduleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['icsGetMusicRoomCurrentUserSchedule']>>>
@@ -958,4 +992,19 @@ export type ParseParseCleaningScheduleResult = NonNullable<Awaited<ReturnType<Re
 export type ParseParseBootcampScheduleResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['parseParseBootcampSchedule']>>>
 export type PredefinedGetPredefinedDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['predefinedGetPredefinedData']>>>
 export type PredefinedUpdatePredefinedDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['predefinedUpdatePredefinedData']>>>
+export type TagsListTagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsListTags']>>>
+export type TagsBatchCreateTagsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsBatchCreateTags']>>>
+export type TagsDeleteTagResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsDeleteTag']>>>
+export type TagsDeleteTagByTypeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['tagsDeleteTagByType']>>>
+export type UsersGetMeResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetMe']>>>
+export type UsersGetPredefinedResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetPredefined']>>>
+export type UsersAddFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersAddFavorite']>>>
+export type UsersDeleteFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersDeleteFavorite']>>>
+export type UsersHideFavoriteResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersHideFavorite']>>>
+export type UsersHideTargetResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersHideTarget']>>>
+export type UsersLinkCalendarResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersLinkCalendar']>>>
+export type UsersGenerateUserScheduleKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGenerateUserScheduleKey']>>>
+export type UsersGetUserScheduleKeysResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersGetUserScheduleKeys']>>>
+export type UsersDeleteUserScheduleKeyResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersDeleteUserScheduleKey']>>>
+export type UsersSetUserMoodleDataResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['usersSetUserMoodleData']>>>
 export type MetricsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getInNoHassleEventsAPI>['metrics']>>>
