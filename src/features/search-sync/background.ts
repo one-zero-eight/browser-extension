@@ -79,6 +79,17 @@ async function syncAllCourses() {
   if (!state.isSyncingCourses)
     return // Stop syncing if the user disabled this feature
 
+  // Sync courses list
+  await search.moodleBatchUpsertCourses({
+    courses: courses.map(c => ({
+      id: c.id,
+      fullname: c.fullname,
+      startdate: c.startdate,
+      enddate: c.enddate,
+      coursecategory: c.coursecategory,
+    })),
+  })
+
   // Retrieve course structure from Moodle
   console.log('Fetching course contents from Moodle')
   const contentsByCourseId: Record<number, CourseContents | undefined> = {}
