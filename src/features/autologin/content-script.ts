@@ -5,18 +5,20 @@ import {
   MOODLE_OAUTH2_LOGIN_URL,
 } from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
-import { setStored } from '@/shared/storage'
+import { getStored, setStored } from '@/shared/storage'
 
 export function requestAutologinIfNeeded() {
-  if (window.location.href.startsWith(MOODLE_LOGIN_URL) || window.location.href.startsWith(MOODLE_OAUTH2_LOGIN_URL)) {
-    sendMessage('REQUEST_AUTOLOGIN')
-  }
-  else if (window.location.href.startsWith(MOODLE_MOBILE_LAUNCH_URL)) {
-    window.location.href = MOODLE_DASHBOARD_URL
-  }
-  else if (document.body.classList.contains('notloggedin')) {
-    sendMessage('REQUEST_AUTOLOGIN')
-  }
+  getStored('autologinEnabled').then((enabled) => {
+    if ((window.location.href.startsWith(MOODLE_LOGIN_URL) || window.location.href.startsWith(MOODLE_OAUTH2_LOGIN_URL)) && enabled) {
+      sendMessage('REQUEST_AUTOLOGIN')
+    }
+    else if (window.location.href.startsWith(MOODLE_MOBILE_LAUNCH_URL)) {
+      window.location.href = MOODLE_DASHBOARD_URL
+    }
+    else if (document.body.classList.contains('notloggedin') && enabled) {
+      sendMessage('REQUEST_AUTOLOGIN')
+    }
+  })
 }
 
 export function refreshPageOnAutologin() {

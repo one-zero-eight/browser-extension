@@ -5,7 +5,7 @@ import { syncMoodleCalendarUrl } from '@/features/moodle-calendar-url/background
 import { sendSyncProgress, stopSync, syncCourses } from '@/features/search-sync/background'
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
-import { getStored } from '@/shared/storage'
+import { getStored, setStored } from '@/shared/storage'
 
 chrome.runtime.onInstalled.addListener(() => {
   applyUserAgentRule()
@@ -20,6 +20,17 @@ onMessage('POPUP_OPEN', () => {
 
 onMessage('MOODLE_LOAD', () => {
   console.log('Background has received a message MOODLE_LOAD')
+  // Initialize variables in the storage
+  getStored('autologinEnabled').then((stored) => {
+    if (stored === undefined) {
+      setStored('autologinEnabled', true)
+    }
+  })
+  getStored('allowSyncingCourses').then((stored) => {
+    if (stored === undefined) {
+      setStored('allowSyncingCourses', true)
+    }
+  })
   getStored('autologinLastSuccessMS').then((autologinLastSuccessMS) => {
     sendMessageToMoodleTabs('AUTOLOGIN_LAST_SUCCESS', autologinLastSuccessMS)
   })
