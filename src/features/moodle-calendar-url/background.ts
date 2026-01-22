@@ -22,6 +22,12 @@ export async function syncMoodleCalendarUrl() {
     return false
   }
 
+  const siteInfo = await moodle.core.webservice.getSiteInfo({})
+  if (user.email !== siteInfo.username) {
+    console.log('Moodle account does not match InNoHassle account')
+    return false
+  }
+
   try {
     const { token } = await moodle.core.calendar.getCalendarExportToken({})
     if (!token) {
