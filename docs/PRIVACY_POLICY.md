@@ -15,7 +15,6 @@ We collect and use your information solely for the purpose of providing the auto
 
 1. Autologin to Moodle: Automatically log you into Moodle using the stored token when you open the page.
 2. Fetch Course Lists: Retrieve your course lists from Moodle to display quick links for easy access.
-3. Sync courses with InNoHassle Search: Sync your Moodle courses contents with InNoHassle Search to provide a seamless search experience among university resources.
 
 ## Data Security
 

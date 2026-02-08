@@ -21,8 +21,9 @@ export interface SharedStorage {
 
   // InNoHassle API
   innohassleToken: string
-  allowSyncingCourses: boolean
-  syncCoursesLastUpdateMS: number
   innohassleSearchUrl: string
   innohassleEventsUrl: string
+
+  // User pinned links
+  pinnedLinks: string
 }
