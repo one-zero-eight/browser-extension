@@ -2,7 +2,6 @@ import { applyUserAgentRule } from '@/entrypoints/background/net-rules'
 import { autoLogIn } from '@/features/autologin/background'
 import { fetchCourses } from '@/features/courses/background'
 import { syncMoodleCalendarUrl } from '@/features/moodle-calendar-url/background'
-import { sendSyncProgress, stopSync, syncCourses } from '@/features/search-sync/background'
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
 import { getStored, setStored } from '@/shared/storage'
@@ -14,7 +13,6 @@ chrome.runtime.onInstalled.addListener(() => {
 onMessage('POPUP_OPEN', () => {
   console.log('Background has received a message POPUP_OPEN')
   fetchCourses()
-  syncCourses()
   syncMoodleCalendarUrl()
 })
 
@@ -24,11 +22,6 @@ onMessage('MOODLE_LOAD', () => {
   getStored('autologinEnabled').then((stored) => {
     if (stored === undefined) {
       setStored('autologinEnabled', true)
-    }
-  })
-  getStored('allowSyncingCourses').then((stored) => {
-    if (stored === undefined) {
-      setStored('allowSyncingCourses', true)
     }
   })
   getStored('autologinLastSuccessMS').then((autologinLastSuccessMS) => {
@@ -47,8 +40,6 @@ onMessage('MOODLE_LOAD', () => {
           refreshToken()
         }
         else {
-          // Run the worker if needed
-          syncCourses()
           // Sync the calendar url if needed
           syncMoodleCalendarUrl()
         }
@@ -63,19 +54,4 @@ onMessage('REQUEST_AUTOLOGIN', () => {
     // Send message to all content scripts
     sendMessageToMoodleTabs(success ? 'AUTOLOGIN_SUCCEEDED' : 'AUTOLOGIN_FAILED')
   })
-})
-
-onMessage('REQUEST_SYNC', () => {
-  console.log('Background has received a message REQUEST_SYNC')
-  syncCourses() // Run the worker (if allowed)
-})
-
-onMessage('STOP_SYNC', () => {
-  console.log('Background has received a message STOP_SYNC')
-  stopSync() // Clear the pending requests queue
-})
-
-onMessage('REQUEST_SYNC_PROGRESS', () => {
-  console.log('Background has received a message REQUEST_SYNC_PROGRESS')
-  sendSyncProgress() // Send 'SYNCING_PROGRESS' message
 })
