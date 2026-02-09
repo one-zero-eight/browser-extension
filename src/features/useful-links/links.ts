@@ -26,6 +26,16 @@ export const links: LinkInfo[] = [
     className: 'i-ph-door-open',
   },
   {
+    title: 'Clubs',
+    href: 'https://innohassle.ru/clubs',
+    className: 'i-material-symbols-diversity-1-rounded',
+  },
+  {
+    title: 'Printers',
+    href: 'https://t.me/InnoPrintBot',
+    className: 'i-material-symbols-print-outline-rounded',
+  },
+  {
     title: 'Moodle',
     href: 'https://moodle.innopolis.university/my/',
     className: 'i-material-symbols-school-outline-rounded',
@@ -66,6 +76,11 @@ export const links: LinkInfo[] = [
     className: 'i-material-symbols-night-shelter-outline-rounded',
   },
   {
+    title: 'Dorms bot',
+    href: 'https://t.me/IURoomsBot',
+    className: 'i-material-symbols-nest-multi-room-outline-rounded',
+  },
+  {
     title: 'Eduwiki',
     href: 'https://eduwiki.innopolis.university',
     className: 'i-streamline-quality-education',
@@ -74,6 +89,11 @@ export const links: LinkInfo[] = [
     title: 'Baam',
     href: 'https://baam.tatar',
     className: 'i-material-symbols-qr-code-rounded',
+  },
+  {
+    title: 'Timer',
+    href: 'https://innohassle.ru/timer',
+    className: 'i-material-symbols-timer-outline-rounded',
   },
 ]
 
