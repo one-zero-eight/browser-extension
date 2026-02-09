@@ -5,6 +5,7 @@ import { syncMoodleCalendarUrl } from '@/features/moodle-calendar-url/background
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
 import { getStored, setStored } from '@/shared/storage'
+import { initializeUsefulLinksIfNeeded } from '@/features/useful-links/background'
 
 chrome.runtime.onInstalled.addListener(() => {
   applyUserAgentRule()
@@ -14,6 +15,7 @@ onMessage('POPUP_OPEN', () => {
   console.log('Background has received a message POPUP_OPEN')
   fetchCourses()
   syncMoodleCalendarUrl()
+  initializeUsefulLinksIfNeeded()
 })
 
 onMessage('MOODLE_LOAD', () => {
