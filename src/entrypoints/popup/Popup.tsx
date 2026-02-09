@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { SearchField } from '@/features/search/SearchField'
-import { SearchAutoSyncToggle } from '@/features/search-sync/SearchAutoSyncToggle'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { CoursesList } from '@/features/courses/CoursesList'
@@ -19,7 +18,6 @@ export default function Popup() {
       <SearchField />
       <CoursesList />
       <AutologinToggle />
-      <SearchAutoSyncToggle />
     </div>
   )
 }
