@@ -5,3 +5,4 @@ export const MOODLE_LOGIN_URL = `${MOODLE_URL}/login/index.php`
 export const MOODLE_OAUTH2_LOGIN_URL = `${MOODLE_URL}/auth/oauth2/login.php`
 export const MOODLE_DASHBOARD_URL = `${MOODLE_URL}/my/`
 export const MOODLE_GRADES_URL = (id: number) => `${MOODLE_URL}/grade/report/user/index.php?id=${id}`
+export const MOODLE_COURSE_URL = (id: number) => `${MOODLE_URL}/course/view.php?id=${id}`
