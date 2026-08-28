@@ -4,6 +4,7 @@ import { SearchField } from '@/features/search/SearchField'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { CoursesList } from '@/features/courses/CoursesList'
+import { DownloadCoursesSection } from '@/features/download-course/DownloadCoursesSection'
 import { sendMessage } from '@/shared/messages'
 
 export default function Popup() {
@@ -17,6 +18,7 @@ export default function Popup() {
       <UsefulLinksSection />
       <SearchField />
       <CoursesList />
+      <DownloadCoursesSection />
       <AutologinToggle />
     </div>
   )

@@ -9,6 +9,7 @@ This is a browser extension for students of Innopolis University. It is designed
 - **Moodle Autologin**: Automatically logs you in to Moodle when you open the page.
 - **Useful Links**: Direct links to frequently accessed course pages, university portals and other useful resources.
 - **Search Field**: Search anything using InNoHassle Search.
+- **Download Course Content**: Download every file of a Moodle course as a single ZIP archive, keeping the section / activity folder structure.
 
 ## Development
 
