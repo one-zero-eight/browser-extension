@@ -1,10 +1,14 @@
 import type { ReactNode } from 'react'
 import type { CoursesScope } from './useCourses'
 import { useCourses } from './useCourses'
+import { CoursesScopeToggle } from '@/features/courses/CoursesScopeToggle'
 import { DownloadCourseButton } from '@/features/download-course/DownloadCourseButton'
 import { MOODLE_GRADES_URL } from '@/shared/config/moodle'
 
-export function CoursesList({ scope }: { scope: CoursesScope }) {
+export function CoursesList({ scope, onScopeChange }: {
+  scope: CoursesScope
+  onScopeChange: (scope: CoursesScope) => void
+}) {
   const { courses, status, retry } = useCourses(scope)
 
   let body: ReactNode
@@ -53,7 +57,10 @@ export function CoursesList({ scope }: { scope: CoursesScope }) {
 
   return (
     <div className="flex flex-col gap-2 p-2">
-      <div className="text-xl text-moodle font-bold">Your courses</div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="text-xl text-moodle font-bold">Your courses</div>
+        <CoursesScopeToggle scope={scope} onChange={onScopeChange} />
+      </div>
       <div className="flex flex-col gap-1">{body}</div>
     </div>
   )
