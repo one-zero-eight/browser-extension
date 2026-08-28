@@ -13,10 +13,10 @@ export async function downloadFileByUrl(fileUrl: string): Promise<Blob> {
     throw new Error('Token is not present')
   }
 
-  const url = new URL(fileUrl)
-  url.searchParams.set('token', token)
+  const separator = fileUrl.includes('?') ? '&' : '?'
+  const url = `${fileUrl}${separator}token=${encodeURIComponent(token)}`
 
-  const resp = await fetch(url.toString())
+  const resp = await fetch(url)
   if (!resp.ok) {
     throw new Error(`Failed to download file: HTTP ${resp.status}`)
   }

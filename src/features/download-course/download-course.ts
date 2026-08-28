@@ -1,6 +1,6 @@
-import type { AsyncZippable, Zippable } from 'fflate'
+import type { Zippable } from 'fflate'
 import type { MoodleClientFunctionTypes } from 'moodle-typed-ws'
-import { zip, zipSync } from 'fflate'
+import { zipSync } from 'fflate'
 import pLimit from 'p-limit'
 import { MOODLE_WS_URL } from '@/shared/config/moodle'
 import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
@@ -21,12 +21,17 @@ async function callMoodleWs<T>(wsfunction: string, params: Record<string, string
   if (!token)
     throw new Error('Not signed in to Moodle (no Web Services token)')
 
-  const body = new URLSearchParams({
+  // Build the form body as a plain string. Passing a URLSearchParams instance
+  // to `fetch` triggers a branded type-check that throws "Permission denied to
+  // access property" across the Firefox content-script compartment boundary.
+  const body = Object.entries({
     wstoken: token,
     wsfunction,
     moodlewsrestformat: 'json',
     ...params,
   })
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`)
+    .join('&')
 
   const resp = await fetch(MOODLE_WS_URL, {
     method: 'POST',
@@ -140,32 +145,12 @@ function planFiles(sections: CourseSections): PlannedFile[] {
 // level 1: course files (pdf, pptx, images, video) barely compress, favour speed
 const ZIP_OPTIONS = { level: 1 } as const
 
-function buildZip(entries: AsyncZippable): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const toBlob = (data: Uint8Array) => new Blob([data], { type: 'application/zip' })
-    const sync = () => {
-      try {
-        resolve(toBlob(zipSync(entries as Zippable, ZIP_OPTIONS)))
-      }
-      catch (e) {
-        reject(e)
-      }
-    }
-
-    try {
-      // Async zip spins up a Web Worker, which can fail inside a Firefox
-      // content-script sandbox — fall back to the synchronous packer.
-      zip(entries, ZIP_OPTIONS, (err, data) => {
-        if (err)
-          sync()
-        else
-          resolve(toBlob(data))
-      })
-    }
-    catch {
-      sync()
-    }
-  })
+function buildZip(entries: Zippable): Blob {
+  // Synchronous packer only. fflate's async `zip()` clones the input typed
+  // arrays via `new value.constructor(value)` before handing them to a Worker,
+  // and reading `.constructor` throws "Permission denied to access property"
+  // on cross-compartment arrays inside a Firefox content-script sandbox.
+  return new Blob([zipSync(entries, ZIP_OPTIONS)], { type: 'application/zip' })
 }
 
 /**
@@ -188,7 +173,7 @@ export async function fetchCourseArchive(
   if (planned.length === 0)
     throw new Error('This course has no downloadable files')
 
-  const entries: AsyncZippable = {}
+  const entries: Zippable = {}
   const skipped: string[] = []
   let completed = 0
 
@@ -201,7 +186,13 @@ export async function fetchCourseArchive(
           return
         }
         const blob = await downloadFileByUrl(file.url)
-        entries[file.path] = new Uint8Array(await blob.arrayBuffer())
+        // Copy into a Uint8Array owned by this realm: bytes coming from
+        // fetch().blob() can be cross-compartment in a Firefox content-script
+        // sandbox, which breaks fflate's typed-array handling.
+        const source = new Uint8Array(await blob.arrayBuffer())
+        const bytes = new Uint8Array(source.length)
+        bytes.set(source)
+        entries[file.path] = bytes
       }
       catch (e) {
         console.log(`Couldn't download ${file.path}`, e)
@@ -217,7 +208,7 @@ export async function fetchCourseArchive(
   if (Object.keys(entries).length === 0)
     throw new Error('Failed to download any file from this course')
 
-  const blob = await buildZip(entries)
+  const blob = buildZip(entries)
   const filename = `${sanitizeSegment(courseName)}.zip`
 
   return { blob, filename, fileCount: Object.keys(entries).length, skipped }
