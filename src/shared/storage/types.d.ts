@@ -3,6 +3,9 @@ import type { MoodleClientFunctionTypes } from 'moodle-typed-ws'
 export type Courses =
   MoodleClientFunctionTypes.CoreCourseGetEnrolledCoursesByTimelineClassificationWSResponse['courses']
 
+export type AllCourses =
+  MoodleClientFunctionTypes.CoreEnrolGetUsersCoursesWSResponse
+
 export interface SharedStorage {
   // Web services API token
   token: string
@@ -15,9 +18,13 @@ export interface SharedStorage {
   // User info
   userId: number
 
-  // Courses
+  // Courses in progress (shown on the Moodle dashboard)
   courses: Courses
   coursesLastUpdateMS: number
+
+  // Every enrolled course, including past and future ones
+  allCourses: AllCourses
+  allCoursesLastUpdateMS: number
 
   // InNoHassle API
   innohassleToken: string
