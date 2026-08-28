@@ -1,5 +1,7 @@
 # InNoHassle Browser extension
 
+[Browser extension](https://innohassle.ru/extension)
+
 This is a browser extension for students of Innopolis University. It is designed to make the life of students easier by providing a set of useful tools and features.
 
 ## Features
