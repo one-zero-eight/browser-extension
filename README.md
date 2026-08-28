@@ -17,16 +17,12 @@ This is a browser extension for students of Innopolis University. It is designed
 ### Prerequisites
 
 - **Node.js** 18+ (20/22/24 work too)
-- **pnpm** — the project uses a `pnpm-lock.yaml`. pnpm 9 matches CI:
+- **pnpm** — pinned to 9 via the `packageManager` field (matches CI). With
+  Corepack enabled, the right version is selected automatically:
 
   ```sh
-  corepack enable pnpm
-  corepack prepare pnpm@9 --activate
+  corepack enable
   ```
-
-  pnpm 10/11 also work; they require the settings already present in
-  `pnpm-workspace.yaml` (`onlyBuiltDependencies` to allow esbuild's build
-  script, `verifyDepsBeforeRun: false` so `pnpm dev` doesn't re-run install).
 
 ### Install
 

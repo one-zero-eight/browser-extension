@@ -1,6 +1,0 @@
-verifyDepsBeforeRun: false
-onlyBuiltDependencies:
-  - es5-ext
-  - esbuild
-  - moodle-typed-ws
-  - simple-git-hooks

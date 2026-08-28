@@ -4,6 +4,7 @@
   "type": "module",
   "version": "0.7.0",
   "private": true,
+  "packageManager": "pnpm@9.15.9",
   "description": "Convenient tools for Moodle, InNoHassle and other services at Innopolis University.",
   "scripts": {
     "dev": "BROWSER=chrome vite",
