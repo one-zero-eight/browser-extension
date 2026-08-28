@@ -5,6 +5,7 @@ import {
   requestAutologinIfNeeded,
   showAutologinNotification,
 } from '@/features/autologin/content-script'
+import { injectCourseDownloadButton } from '@/features/download-course/content-script'
 import { MOODLE_LOGIN_URL } from '@/shared/config/moodle'
 import { onMessage, sendMessage } from '@/shared/messages'
 
@@ -32,6 +33,7 @@ function main() {
   sendMessage('MOODLE_LOAD')
   requestAutologinIfNeeded()
   injectSessionKeepalive()
+  injectCourseDownloadButton()
 }
 
 main()
