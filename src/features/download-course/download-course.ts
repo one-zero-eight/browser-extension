@@ -1,11 +1,47 @@
-import type { AsyncZippable } from 'fflate'
+import type { AsyncZippable, Zippable } from 'fflate'
 import type { MoodleClientFunctionTypes } from 'moodle-typed-ws'
-import { zip } from 'fflate'
+import { zip, zipSync } from 'fflate'
 import pLimit from 'p-limit'
-import { moodle } from '@/shared/moodle-ws-api'
+import { MOODLE_WS_URL } from '@/shared/config/moodle'
 import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
+import { getStored } from '@/shared/storage'
 
 type CourseSections = MoodleClientFunctionTypes.CoreCourseGetContentsWSResponse
+
+/**
+ * Call a Moodle Web Services function with plain `fetch`.
+ *
+ * The shared Axios client can't be used here: this module runs inside a Firefox
+ * content-script sandbox, where Axios' adapters throw "Permission denied to
+ * access property" while inspecting `document` / `Headers`. `fetch` + `.json()`
+ * never touches those, so it works in every context (content script, popup, SW).
+ */
+async function callMoodleWs<T>(wsfunction: string, params: Record<string, string>): Promise<T> {
+  const token = await getStored('token')
+  if (!token)
+    throw new Error('Not signed in to Moodle (no Web Services token)')
+
+  const body = new URLSearchParams({
+    wstoken: token,
+    wsfunction,
+    moodlewsrestformat: 'json',
+    ...params,
+  })
+
+  const resp = await fetch(MOODLE_WS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body,
+  })
+  if (!resp.ok)
+    throw new Error(`Moodle WS ${wsfunction} failed: HTTP ${resp.status}`)
+
+  const data = await resp.json()
+  if (data && typeof data === 'object' && 'errorcode' in data)
+    throw new Error(`Moodle WS ${wsfunction}: ${(data as { errorcode: string }).errorcode}`)
+
+  return data as T
+}
 
 // How many files to download from Moodle at the same time
 const DOWNLOAD_CONCURRENCY = 4
@@ -101,15 +137,34 @@ function planFiles(sections: CourseSections): PlannedFile[] {
   return files
 }
 
+// level 1: course files (pdf, pptx, images, video) barely compress, favour speed
+const ZIP_OPTIONS = { level: 1 } as const
+
 function buildZip(entries: AsyncZippable): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    // level 1: course files (pdf, pptx, images, video) barely compress, favour speed
-    zip(entries, { level: 1 }, (err, data) => {
-      if (err)
-        reject(err)
-      else
-        resolve(new Blob([data], { type: 'application/zip' }))
-    })
+    const toBlob = (data: Uint8Array) => new Blob([data], { type: 'application/zip' })
+    const sync = () => {
+      try {
+        resolve(toBlob(zipSync(entries as Zippable, ZIP_OPTIONS)))
+      }
+      catch (e) {
+        reject(e)
+      }
+    }
+
+    try {
+      // Async zip spins up a Web Worker, which can fail inside a Firefox
+      // content-script sandbox — fall back to the synchronous packer.
+      zip(entries, ZIP_OPTIONS, (err, data) => {
+        if (err)
+          sync()
+        else
+          resolve(toBlob(data))
+      })
+    }
+    catch {
+      sync()
+    }
   })
 }
 
@@ -125,7 +180,9 @@ export async function fetchCourseArchive(
   courseName: string,
   onProgress?: (progress: ArchiveProgress) => void,
 ): Promise<ArchiveResult> {
-  const sections = await moodle.core.course.getContents({ courseid: courseId })
+  const sections = await callMoodleWs<CourseSections>('core_course_get_contents', {
+    courseid: String(courseId),
+  })
   const planned = planFiles(sections)
 
   if (planned.length === 0)
