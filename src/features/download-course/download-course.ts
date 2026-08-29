@@ -4,7 +4,8 @@ import { zipSync } from 'fflate'
 import pLimit from 'p-limit'
 import { MOODLE_WS_URL } from '@/shared/config/moodle'
 import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
-import { getStored } from '@/shared/storage'
+import { MoodleNotSignedInError } from '@/shared/moodle-ws-api/not-signed-in-error'
+import { getStored, removeStored } from '@/shared/storage'
 
 type CourseSections = MoodleClientFunctionTypes.CoreCourseGetContentsWSResponse
 
@@ -19,7 +20,7 @@ type CourseSections = MoodleClientFunctionTypes.CoreCourseGetContentsWSResponse
 async function callMoodleWs<T>(wsfunction: string, params: Record<string, string>): Promise<T> {
   const token = await getStored('token')
   if (!token)
-    throw new Error('Not signed in to Moodle (no Web Services token)')
+    throw new MoodleNotSignedInError()
 
   // Build the form body as a plain string. Passing a URLSearchParams instance
   // to `fetch` triggers a branded type-check that throws "Permission denied to
@@ -42,8 +43,16 @@ async function callMoodleWs<T>(wsfunction: string, params: Record<string, string
     throw new Error(`Moodle WS ${wsfunction} failed: HTTP ${resp.status}`)
 
   const data = await resp.json()
-  if (data && typeof data === 'object' && 'errorcode' in data)
-    throw new Error(`Moodle WS ${wsfunction}: ${(data as { errorcode: string }).errorcode}`)
+  if (data && typeof data === 'object' && 'errorcode' in data) {
+    const errorcode = (data as { errorcode: string }).errorcode
+    if (errorcode === 'invalidtoken' || errorcode === 'accessexception') {
+      // This path never touches the shared Axios client, so nothing else clears
+      // the stale token. Drop it so the next Moodle page visit re-scrapes one.
+      await removeStored('token')
+      throw new MoodleNotSignedInError('Your Moodle session expired — sign in again')
+    }
+    throw new Error(`Moodle WS ${wsfunction}: ${errorcode}`)
+  }
 
   return data as T
 }
