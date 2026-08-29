@@ -15,12 +15,20 @@ type MoodleClient = MoodleClientTypes & {
 }
 
 function serializeForm(data: unknown) {
-  return Object.fromEntries([
-    ...serialize(data, {
-      indices: true,
-      booleansAsIntegers: true, // Moodle doesn't understand booleans
-    }).entries(),
-  ])
+  const formData = serialize(data, {
+    indices: true,
+    booleansAsIntegers: true, // Moodle doesn't understand booleans
+  })
+
+  // Use FormData#forEach instead of spreading `.entries()`: inside a Firefox
+  // content-script sandbox the iterator returned by `.entries()` is not
+  // iterable across the compartment boundary and throws
+  // "entries(...) is not iterable".
+  const entries: Record<string, FormDataEntryValue> = {}
+  formData.forEach((value, key) => {
+    entries[key] = value
+  })
+  return entries
 }
 
 function snakeCase(str: string) {
