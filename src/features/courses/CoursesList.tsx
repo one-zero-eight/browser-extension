@@ -1,15 +1,35 @@
 import type { ReactNode } from 'react'
 import type { CoursesScope } from './useCourses'
 import { useCourses } from './useCourses'
+import { useMoodleSignedIn } from './useMoodleSignedIn'
 import { CoursesScopeToggle } from '@/features/courses/CoursesScopeToggle'
 import { DownloadCourseButton } from '@/features/download-course/DownloadCourseButton'
-import { MOODLE_GRADES_URL } from '@/shared/config/moodle'
+import { MOODLE_DASHBOARD_URL, MOODLE_GRADES_URL } from '@/shared/config/moodle'
 
 export function CoursesList({ scope, onScopeChange }: {
   scope: CoursesScope
   onScopeChange: (scope: CoursesScope) => void
 }) {
   const { courses, status, retry } = useCourses(scope)
+  const signedIn = useMoodleSignedIn()
+
+  if (signedIn === false) {
+    return (
+      <div className="flex flex-col gap-2 p-2">
+        <a
+          href={MOODLE_DASHBOARD_URL}
+          target="_blank"
+          className="w-fit flex items-center gap-1 text-xl text-moodle font-bold underline-offset-2 hover:underline"
+        >
+          <span className="i-material-symbols-login-rounded text-lg" />
+          Sign in
+        </a>
+        <div className="text-sm text-white">
+          Sign in to Moodle to see and download your courses.
+        </div>
+      </div>
+    )
+  }
 
   let body: ReactNode
   if (courses && courses.length > 0) {

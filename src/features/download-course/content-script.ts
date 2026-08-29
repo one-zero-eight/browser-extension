@@ -1,4 +1,6 @@
 import { fetchCourseArchive } from './download-course'
+import { MOODLE_DASHBOARD_URL } from '@/shared/config/moodle'
+import { isMoodleNotSignedInError } from '@/shared/moodle-ws-api/not-signed-in-error'
 import { triggerDownload } from '@/shared/ui/trigger-download'
 
 const BUTTON_ID = 'innohassle-course-download'
@@ -45,6 +47,49 @@ function readCourseName(courseId: number): string {
   return heading?.textContent?.trim() || document.title.trim() || `course-${courseId}`
 }
 
+const NOTICE_ID = 'innohassle-course-download-notice'
+
+/**
+ * Floating notice telling the user to sign in to Moodle, with a link that opens
+ * the Moodle dashboard (which also triggers the extension's token refresh).
+ * Styled to match {@link showAutologinNotification} in the autologin feature.
+ */
+function showSignInNotice() {
+  document.getElementById(NOTICE_ID)?.remove()
+
+  const notice = document.createElement('div')
+  notice.id = NOTICE_ID
+  notice.style.cssText = `
+    position: fixed;
+    top: 184px;
+    right: 16px;
+    z-index: 2147483647;
+    max-width: 280px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background-color: #9747ff;
+    font: 14px/1.4 system-ui, -apple-system, sans-serif;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  `
+
+  const text = document.createElement('span')
+  text.textContent = 'Sign in to Moodle to download this course. '
+
+  const link = document.createElement('a')
+  link.href = MOODLE_DASHBOARD_URL
+  link.target = '_blank'
+  link.rel = 'noopener'
+  link.textContent = 'Open Moodle ↗'
+  link.style.cssText = 'color: #fff; font-weight: bold; text-decoration: underline;'
+
+  notice.append(text, link)
+  notice.addEventListener('click', () => notice.remove())
+  document.body.appendChild(notice)
+
+  setTimeout(() => notice.remove(), 8000)
+}
+
 function setBusy(button: HTMLButtonElement, busy: boolean) {
   button.disabled = busy
   button.style.setProperty('opacity', busy ? '0.7' : '1', 'important')
@@ -79,7 +124,13 @@ function buildButton(courseId: number): HTMLButtonElement {
     }
     catch (e) {
       console.log(LOG, 'download failed', e)
-      button.textContent = 'Download failed'
+      if (isMoodleNotSignedInError(e)) {
+        button.textContent = 'Sign in to Moodle'
+        showSignInNotice()
+      }
+      else {
+        button.textContent = 'Download failed'
+      }
     }
     finally {
       running = false

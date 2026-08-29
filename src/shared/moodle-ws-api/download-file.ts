@@ -1,3 +1,4 @@
+import { MoodleNotSignedInError } from './not-signed-in-error'
 import { getStored } from '@/shared/storage'
 
 /**
@@ -10,13 +11,16 @@ import { getStored } from '@/shared/storage'
 export async function downloadFileByUrl(fileUrl: string): Promise<Blob> {
   const token = await getStored('token')
   if (!token) {
-    throw new Error('Token is not present')
+    throw new MoodleNotSignedInError()
   }
 
   const separator = fileUrl.includes('?') ? '&' : '?'
   const url = `${fileUrl}${separator}token=${encodeURIComponent(token)}`
 
   const resp = await fetch(url)
+  if (resp.status === 401 || resp.status === 403) {
+    throw new MoodleNotSignedInError()
+  }
   if (!resp.ok) {
     throw new Error(`Failed to download file: HTTP ${resp.status}`)
   }
