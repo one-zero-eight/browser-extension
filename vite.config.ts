@@ -2,7 +2,6 @@ import path from 'node:path'
 import process from 'node:process'
 import { crx } from '@crxjs/vite-plugin'
 import react from '@vitejs/plugin-react'
-import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 
 import manifest from './src/manifest'
@@ -30,7 +29,7 @@ export default defineConfig({
   plugins: [crx({
     manifest,
     browser: isFirefox ? 'firefox' : 'chrome',
-  }), react(), UnoCSS()],
+  }), react()],
 
   // https://github.com/guocaoyi/create-chrome-ext/issues/74
   server: {

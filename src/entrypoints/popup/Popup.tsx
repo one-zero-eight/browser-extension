@@ -15,12 +15,14 @@ export default function Popup() {
   }, [])
 
   return (
-    <div className="min-w-md flex flex-col">
+    <div className="flex flex-col pb-3">
       <TopBar />
-      <UsefulLinksSection />
       <SearchField />
+      <UsefulLinksSection />
       <CoursesList scope={coursesScope} onScopeChange={setCoursesScope} />
-      <AutologinToggle />
+      <div className="mt-3">
+        <AutologinToggle />
+      </div>
     </div>
   )
 }

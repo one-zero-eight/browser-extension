@@ -1,4 +1,11 @@
-:root {
-  color-scheme: dark;
-  background-color: #1e1e1e;
+@import '../../shared/ui/theme.css';
+
+html,
+body,
+#app {
+  width: 400px;
+  min-height: 0;
+  max-height: 600px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }

@@ -82,12 +82,12 @@ export function DownloadCourseButton({ courseId, courseName }: {
   })()
 
   const icon = needsSignIn
-    ? 'i-material-symbols-login-rounded'
+    ? 'icon-[material-symbols--login-rounded]'
     : {
-        idle: 'i-material-symbols-folder-zip-outline-rounded',
-        loading: 'i-material-symbols-progress-activity animate-spin',
-        done: 'i-material-symbols-check-circle-outline-rounded',
-        error: 'i-material-symbols-error-outline-rounded',
+        idle: 'icon-[material-symbols--folder-zip-outline-rounded]',
+        loading: 'icon-[material-symbols--progress-activity] animate-spin',
+        done: 'icon-[material-symbols--check-circle-outline-rounded]',
+        error: 'icon-[material-symbols--error-outline-rounded]',
       }[state.status]
 
   return (
@@ -96,15 +96,17 @@ export function DownloadCourseButton({ courseId, courseName }: {
       onClick={onClick}
       disabled={state.status === 'loading'}
       title={title}
+      aria-label={label}
       className={cn(
-        'flex h-fit shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-normal',
-        state.status === 'error' && !needsSignIn
-          ? 'bg-red-900'
-          : 'bg-[#9747FF] hover:bg-[#6600CC] disabled:bg-[#6600CC]',
+        'btn btn-sm',
+        state.status === 'idle' && 'btn-ghost btn-square',
+        state.status === 'loading' && 'btn-primary',
+        state.status === 'done' && 'btn-primary',
+        state.status === 'error' && (needsSignIn ? 'btn-primary' : 'btn-error'),
       )}
     >
-      <span className={cn(icon, 'text-sm')} />
-      <span className="max-w-40 truncate">{label}</span>
+      <span className={cn(icon, 'text-lg', state.status === 'idle' && 'text-base-content/50')} />
+      {state.status !== 'idle' && <span className="max-w-32 truncate">{label}</span>}
     </button>
   )
 }

@@ -1,63 +1,96 @@
-import NavigationPanel from '@/entrypoints/options/components/NavigationPanel'
-import OptionBlock from '@/entrypoints/options/components/OptionBlock'
-import { setStored, useStorage } from '@/shared/storage'
-import type { LinkInfo } from '@/features/useful-links/links'
-import { links } from '@/features/useful-links/links'
+import OptionBlock from "@/entrypoints/options/components/OptionBlock";
+import { setStored, useStorage } from "@/shared/storage";
+import type { LinkInfo } from "@/features/useful-links/links";
+import { links } from "@/features/useful-links/links";
 
-import LinkSetting from '@/entrypoints/options/components/LinkSetting'
-import AboutSection from '@/entrypoints/options/components/AboutSection'
-import { AutologinToggle } from '@/features/autologin/AutologinToggle'
+import LinkSetting from "@/entrypoints/options/components/LinkSetting";
+import AboutSection from "@/entrypoints/options/components/AboutSection";
+import { AutologinToggle } from "@/features/autologin/AutologinToggle";
 
 export default function Options() {
-  const pinnedLinks = JSON.parse(useStorage('pinnedLinks') ?? '{}') as Record<string, LinkInfo>
-  const pinnedValues = Object.values(pinnedLinks)
+  const pinnedLinks = JSON.parse(useStorage("pinnedLinks") ?? "{}") as Record<
+    string,
+    LinkInfo
+  >;
+  const pinnedCount = Object.keys(pinnedLinks).length;
 
   const toggleLink = (link: LinkInfo) => {
-    const isPinned = !!pinnedLinks[link.title]
+    const nextPinnedLinks = { ...pinnedLinks };
 
-    if (isPinned) {
-      delete pinnedLinks[link.title]
-      setStored('pinnedLinks', JSON.stringify(pinnedLinks))
+    if (pinnedLinks[link.title]) {
+      delete nextPinnedLinks[link.title];
+    } else {
+      nextPinnedLinks[link.title] = link;
     }
-    else {
-      pinnedLinks[link.title] = link
-      setStored('pinnedLinks', JSON.stringify(pinnedLinks))
-    }
-  }
+
+    setStored("pinnedLinks", JSON.stringify(nextPinnedLinks));
+  };
 
   return (
-    <div className="flex text-base">
-      <NavigationPanel />
-      <div className="px-20 py-10">
-        <h1 className="my-10 w-full text-4xl font-semibold">Options Page</h1>
-        <AboutSection />
-        <OptionBlock title="Quick Links" id="links">
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div>
-              <p className="mb-2 text-base">Pinned services</p>
-              {pinnedValues.length > 0 && (
-                pinnedValues.map(link => (
-                  <LinkSetting key={link.href} title={link.title} className={link.className} pinned={!!pinnedLinks[link.title]} onClick={() => toggleLink(link)} />
-                ))
-              )}
+    <div className="mx-auto max-w-3xl px-6 py-10">
+      <header className="mb-8 flex items-center gap-3">
+        <img src="/icons/logo.svg" alt="" className="size-9" />
+        <div>
+          <h1 className="m-0 text-2xl font-semibold">InNoHassle Tools</h1>
+          <p className="mt-0.5 mb-0 text-sm text-base-content/50">
+            Extension settings
+          </p>
+        </div>
+      </header>
 
-              {pinnedValues.length === 0 && (
-                <div className="text-sm text-gray-500">No pinned services</div>
-              )}
+      <div className="flex flex-col gap-5">
+        <OptionBlock
+          title="Quick links"
+          id="links"
+          description={`${pinnedCount} of ${links.length} shown in the popup`}
+          action={
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={() =>
+                  setStored(
+                    "pinnedLinks",
+                    JSON.stringify(
+                      Object.fromEntries(
+                        links.map((link) => [link.title, link]),
+                      ),
+                    ),
+                  )
+                }
+                className="border-0 bg-transparent p-0 text-sm text-base-content/50 hover:text-base-content"
+              >
+                Select all
+              </button>
+              <button
+                type="button"
+                disabled={pinnedCount === 0}
+                onClick={() => setStored("pinnedLinks", "{}")}
+                className="border-0 bg-transparent p-0 text-sm text-base-content/50 hover:text-base-content disabled:pointer-events-none disabled:opacity-40"
+              >
+                Clear
+              </button>
             </div>
-
-            <div>
-              <p className="mb-2 text-base">Unpinned services</p>
-              {links.filter(link => !pinnedLinks[link.title]).map(link => (
-                <LinkSetting key={link.href} title={link.title} className={link.className} pinned={!!pinnedLinks[link.title]} onClick={() => toggleLink(link)} />
-              ))}
-            </div>
+          }
+        >
+          <div className="grid grid-cols-2 gap-2 p-5 sm:grid-cols-3">
+            {links.map((link) => (
+              <LinkSetting
+                key={link.href}
+                title={link.title}
+                className={link.className}
+                pinned={!!pinnedLinks[link.title]}
+                onClick={() => toggleLink(link)}
+              />
+            ))}
           </div>
         </OptionBlock>
-        <OptionBlock title="Enable Features" id="features">
+
+        <OptionBlock title="Features" id="features">
           <AutologinToggle increased />
         </OptionBlock>
+
+        <AboutSection />
       </div>
     </div>
-  )
+  );
 }

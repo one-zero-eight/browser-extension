@@ -3,24 +3,31 @@ import { cn } from '@/shared/ui/utils'
 
 export function AutologinToggle({ increased = false }: { increased?: boolean }) {
   const autologinEnabled = useStorage('autologinEnabled')
+  const enabled = autologinEnabled !== false
 
   return (
-    <div className="w-full flex flex-row items-center justify-between gap-2 p-2">
-      <div className={`flex items-center ${increased ? '' : 'text-xs'}`}>
-        Enable autologin on Moodle (without entering your password)
+    <div
+      className={cn(
+        'flex w-full items-center justify-between gap-4',
+        increased ? 'px-5 py-4' : 'border-t border-base-300 px-4 py-2.5',
+      )}
+    >
+      <div className="min-w-0">
+        <div className="text-sm font-medium">Moodle autologin</div>
+        <div className="mt-0.5 text-xs text-base-content/50">
+          Sign in without entering your password
+        </div>
       </div>
-      <button
-        type="button"
+      <input
+        type="checkbox"
         className={cn(
-          `flex h-fit items-center justify-center rounded-lg ${increased ? 'px-3 py-2' : 'text-xs px-2 py-1'} font-normal text-base-content`,
-          autologinEnabled === false ? 'bg-red-900' : 'bg-[#9747FF] hover:bg-[#6600CC]',
+          'toggle toggle-primary',
+          increased && 'text-white',
         )}
-        onClick={() => {
-          setStored('autologinEnabled', !autologinEnabled)
-        }}
-      >
-        {autologinEnabled === false ? 'OFF' : 'ON'}
-      </button>
+        checked={enabled}
+        aria-label="Moodle autologin"
+        onChange={() => setStored('autologinEnabled', !enabled)}
+      />
     </div>
   )
 }

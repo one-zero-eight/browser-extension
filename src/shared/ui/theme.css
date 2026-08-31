@@ -1,0 +1,109 @@
+@import 'tailwindcss';
+@plugin '@iconify/tailwind4';
+@plugin 'daisyui' {
+  themes: false;
+}
+
+/* Same DaisyUI themes as innohassle.ru */
+@plugin 'daisyui/theme' {
+  name: 'dark';
+  default: true;
+  prefersdark: true;
+  color-scheme: 'dark';
+  --color-base-100: oklch(16% 0.008 326);
+  --color-base-150: oklch(19% 0.01 325.6);
+  --color-base-200: oklch(20% 0.015 323);
+  --color-base-300: oklch(25% 0.019 322.12);
+  --color-base-content: oklch(100% 0.05 325.885);
+  --color-primary: rgb(151 71 255);
+  --color-primary-content: oklch(96% 0.018 272.314);
+  --color-secondary: rgb(46 139 87);
+  --color-secondary-content: oklch(90% 0.093 164.15);
+  --color-accent: oklch(74.703% 0.158 39.947);
+  --color-accent-content: oklch(14.94% 0.031 39.947);
+  --color-neutral: oklch(14% 0.005 285.823);
+  --color-neutral-content: oklch(92% 0.004 286.32);
+  --radius-selector: 2rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 2px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@plugin 'daisyui/theme' {
+  name: 'light';
+  default: false;
+  prefersdark: false;
+  color-scheme: 'light';
+  --color-base-100: oklch(99.5% 0 0);
+  --color-base-150: oklch(98% 0.001 325.6);
+  --color-base-200: oklch(96% 0.003 325.6);
+  --color-base-300: oklch(92.2% 0.005 325.62);
+  --color-base-content: oklch(20% 0.05 325.885);
+  --color-primary: oklch(65% 0.25 298.01);
+  --color-primary-content: oklch(93% 0.034 272.788);
+  --color-secondary: rgb(46 139 87);
+  --color-secondary-content: oklch(90% 0.093 164.15);
+  --color-accent: oklch(74.703% 0.158 39.947);
+  --color-accent-content: oklch(14.94% 0.031 39.947);
+  --color-neutral: oklch(14% 0.005 285.823);
+  --color-neutral-content: oklch(92% 0.004 286.32);
+  --radius-selector: 2rem;
+  --radius-field: 0.5rem;
+  --radius-box: 1rem;
+  --size-selector: 0.25rem;
+  --size-field: 0.25rem;
+  --border: 2px;
+  --depth: 0;
+  --noise: 0;
+}
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+
+@theme {
+  --font-rubik: 'Rubik Variable', sans-serif;
+  --color-brand-gradient-start: rgb(154 46 255);
+  --color-brand-gradient-end: rgb(209 35 162);
+}
+
+@source '../../**/*.{tsx,ts,html}';
+
+@layer base {
+  :root {
+    accent-color: var(--color-primary);
+    @apply font-rubik;
+  }
+
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-base-300, currentcolor);
+  }
+
+  button:not(:disabled),
+  [role='button']:not(:disabled) {
+    cursor: pointer;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: color-mix(in srgb, var(--color-base-content) 50%, transparent);
+  }
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  background: var(--color-base-100);
+  color: var(--color-base-content);
+}
+
+@utility selected {
+  @apply from-brand-gradient-start to-brand-gradient-end bg-linear-to-r bg-clip-text text-transparent;
+}
