@@ -1,30 +1,31 @@
-import OptionBlock from "@/entrypoints/options/components/OptionBlock";
-import { setStored, useStorage } from "@/shared/storage";
-import type { LinkInfo } from "@/features/useful-links/links";
-import { links } from "@/features/useful-links/links";
+import OptionBlock from '@/entrypoints/options/components/OptionBlock'
+import { setStored, useStorage } from '@/shared/storage'
+import type { LinkInfo } from '@/features/useful-links/links'
+import { links } from '@/features/useful-links/links'
 
-import LinkSetting from "@/entrypoints/options/components/LinkSetting";
-import AboutSection from "@/entrypoints/options/components/AboutSection";
-import { AutologinToggle } from "@/features/autologin/AutologinToggle";
+import LinkSetting from '@/entrypoints/options/components/LinkSetting'
+import AboutSection from '@/entrypoints/options/components/AboutSection'
+import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 
 export default function Options() {
-  const pinnedLinks = JSON.parse(useStorage("pinnedLinks") ?? "{}") as Record<
+  const pinnedLinks = JSON.parse(useStorage('pinnedLinks') ?? '{}') as Record<
     string,
     LinkInfo
-  >;
-  const pinnedCount = Object.keys(pinnedLinks).length;
+  >
+  const pinnedCount = Object.keys(pinnedLinks).length
 
   const toggleLink = (link: LinkInfo) => {
-    const nextPinnedLinks = { ...pinnedLinks };
+    const nextPinnedLinks = { ...pinnedLinks }
 
     if (pinnedLinks[link.title]) {
-      delete nextPinnedLinks[link.title];
-    } else {
-      nextPinnedLinks[link.title] = link;
+      delete nextPinnedLinks[link.title]
+    }
+    else {
+      nextPinnedLinks[link.title] = link
     }
 
-    setStored("pinnedLinks", JSON.stringify(nextPinnedLinks));
-  };
+    setStored('pinnedLinks', JSON.stringify(nextPinnedLinks))
+  }
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
@@ -43,20 +44,20 @@ export default function Options() {
           title="Quick links"
           id="links"
           description={`${pinnedCount} of ${links.length} shown in the popup`}
-          action={
+          action={(
             <div className="flex items-center gap-4">
               <button
                 type="button"
-                onClick={() =>
+                onClick={() => {
                   setStored(
-                    "pinnedLinks",
+                    'pinnedLinks',
                     JSON.stringify(
                       Object.fromEntries(
-                        links.map((link) => [link.title, link]),
+                        links.map(link => [link.title, link]),
                       ),
                     ),
                   )
-                }
+                }}
                 className="border-0 bg-transparent p-0 text-sm text-base-content/50 hover:text-base-content"
               >
                 Select all
@@ -64,16 +65,16 @@ export default function Options() {
               <button
                 type="button"
                 disabled={pinnedCount === 0}
-                onClick={() => setStored("pinnedLinks", "{}")}
+                onClick={() => setStored('pinnedLinks', '{}')}
                 className="border-0 bg-transparent p-0 text-sm text-base-content/50 hover:text-base-content disabled:pointer-events-none disabled:opacity-40"
               >
                 Clear
               </button>
             </div>
-          }
+          )}
         >
           <div className="grid grid-cols-2 gap-2 p-5 sm:grid-cols-3">
-            {links.map((link) => (
+            {links.map(link => (
               <LinkSetting
                 key={link.href}
                 title={link.title}
@@ -92,5 +93,5 @@ export default function Options() {
         <AboutSection />
       </div>
     </div>
-  );
+  )
 }
