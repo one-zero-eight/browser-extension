@@ -3,6 +3,7 @@ import {
   MOODLE_LOGIN_URL,
   MOODLE_MOBILE_LAUNCH_URL,
   MOODLE_OAUTH2_LOGIN_URL,
+  MOODLE_URL,
 } from '@/shared/config/moodle'
 import { sendMessage } from '@/shared/messages'
 import { getStored, setStored } from '@/shared/storage'
@@ -31,28 +32,45 @@ export function refreshPageOnAutologin() {
 }
 
 export function redirectFromLogin(shouldGoToSSO: boolean = false) {
-  const link = document.querySelector('a.btn.login-identityprovider-btn.btn-block')
+  // Don't depend on theme-specific classes like "btn-block", which newer Moodle versions replaced
+  const link = document.querySelector('a.login-identityprovider-btn')
   const href = link?.getAttribute('href')
-  if (!href) {
-    return
-  }
 
   if (shouldGoToSSO) {
-    console.log(`Redirecting to ${href}`)
+    if (!href) {
+      return
+    }
+    // Moodle may have remembered the mobile launch URL as wantsurl after our background token request.
+    // Replace it, otherwise after SSO the user is redirected to "moodlemobile://".
+    const ssoUrl = new URL(href, MOODLE_URL)
+    ssoUrl.searchParams.set('wantsurl', getWantsUrl(href) ?? MOODLE_DASHBOARD_URL)
+    console.log(`Redirecting to ${ssoUrl.href}`)
     setStored('autologinLastSuccessMS', Date.now())
-    window.location.href = href
+    window.location.href = ssoUrl.href
     return
   }
 
-  const wantsUrl = new URL(href).searchParams.get('wantsurl')
-  if (wantsUrl) {
-    console.log(`Redirecting to ${wantsUrl}`)
-    window.location.href = wantsUrl
-    return
-  }
+  // On the oauth2 login page, wantsurl is in the page URL; on the login page, it is in the SSO button link
+  const wantsUrl = getWantsUrl(window.location.href) ?? (href ? getWantsUrl(href) : null)
+  const target = wantsUrl ?? MOODLE_DASHBOARD_URL
+  console.log(`Redirecting to ${target}`)
+  window.location.href = target
+}
 
-  console.log(`No wantsurl parameter found. Redirecting to ${href}`)
-  window.location.href = href
+function getWantsUrl(url: string) {
+  const wantsUrl = new URL(url, MOODLE_URL).searchParams.get('wantsurl')
+  if (!wantsUrl) {
+    return null
+  }
+  // wantsurl may be relative (e.g. "/"); only allow redirects within Moodle.
+  // Skip mobile launch URL: Moodle may remember it as wantsurl after our background token request,
+  // and opening it redirects to "moodlemobile://", which makes the browser ask to open an external app.
+  const resolved = new URL(wantsUrl, MOODLE_URL)
+  const forbidden = [MOODLE_LOGIN_URL, MOODLE_OAUTH2_LOGIN_URL, MOODLE_MOBILE_LAUNCH_URL]
+  if (resolved.origin !== MOODLE_URL || forbidden.some(url => resolved.href.startsWith(url))) {
+    return null
+  }
+  return resolved.href
 }
 
 export function showAutologinNotification() {

@@ -2,7 +2,22 @@ import axios from 'axios'
 import { moodle } from '@/shared/moodle-ws-api'
 import { getStored, setStored } from '@/shared/storage'
 
-export async function autoLogIn() {
+let autoLogInInProgress: Promise<boolean> | null = null
+
+/**
+ * Several Moodle tabs may request autologin at once. Moodle allows only one autologin key
+ * per 6 minutes, so concurrent requests share a single attempt instead of failing with lockout.
+ */
+export function autoLogIn() {
+  if (!autoLogInInProgress) {
+    autoLogInInProgress = doAutoLogIn().finally(() => {
+      autoLogInInProgress = null
+    })
+  }
+  return autoLogInInProgress
+}
+
+async function doAutoLogIn() {
   const enabled = await getStored('autologinEnabled')
   if (enabled === false) {
     console.log('Auto login is disabled, skipping')
