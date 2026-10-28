@@ -3,7 +3,7 @@ import type { CoursesScope } from '@/features/courses/useCourses'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { CoursesList } from '@/features/courses/CoursesList'
-import { SearchField } from '@/features/search/SearchField'
+import { Search } from '@/features/search/Search'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { sendMessage } from '@/shared/messages'
 
@@ -17,9 +17,10 @@ export default function Popup() {
   return (
     <div className="flex flex-col pb-3">
       <TopBar />
-      <SearchField />
-      <UsefulLinksSection />
-      <CoursesList scope={coursesScope} onScopeChange={setCoursesScope} />
+      <Search>
+        <UsefulLinksSection />
+        <CoursesList scope={coursesScope} onScopeChange={setCoursesScope} />
+      </Search>
       <div className="mt-3">
         <AutologinToggle />
       </div>
