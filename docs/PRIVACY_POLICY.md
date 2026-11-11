@@ -8,6 +8,16 @@ Welcome to InNoHassle Tools, a browser extension developed specifically for stud
 
 - Moodle Token: We store your Moodle token locally in your browser. This token is used to facilitate the autologin functionality and ensure seamless access to Moodle.
 - General information from Moodle: We store user id and course list locally in your browser. This information is used to display quick links to your courses and enhance your access to Moodle.
+- Moodle data you choose to share: only when "Send Moodle data to InNoHassle" is on (off by default). The extension sends the following to the InNoHassle search service, under your InNoHassle account, to show them on innohassle.ru (calendar, recommendations). Turning it off deletes this data from InNoHassle.
+  - your Moodle calendar events and deadlines;
+  - your grades;
+  - the status of your assignments and quiz attempts;
+  - which course activities you completed;
+  - your course groups;
+  - course announcements;
+  - the text of your courses and the names and links of course files (not the files themselves).
+
+  It never sends other participants' data or your messages.
 
 ## How We Use Your Information
 
@@ -15,12 +25,13 @@ We collect and use your information solely for the purpose of providing the auto
 
 1. Autologin to Moodle: Automatically log you into Moodle using the stored token when you open the page.
 2. Fetch Course Lists: Retrieve your course lists from Moodle to display quick links for easy access.
+3. Send Moodle data to InNoHassle: Only if you turn on "Send Moodle data to InNoHassle" (off by default), send your Moodle data to the InNoHassle search service under your InNoHassle account, to show it on innohassle.ru. Turning it off deletes it.
 
 ## Data Security
 
 We prioritize the security of your data and have implemented robust measures to protect your information:
 
-- Local Storage: Your Moodle & InNoHassle tokens are stored securely in your browser and is never transmitted to any third-party servers.
+- Local Storage: Your Moodle & InNoHassle tokens are stored in your browser and are never sent anywhere else.
 - Secure Transmission: All network requests made to Moodle & InNoHassle use HTTPS to ensure the protection of your data during transmission.
 
 ## Third-Party Services

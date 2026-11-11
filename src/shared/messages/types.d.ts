@@ -1,6 +1,8 @@
 export interface Messages {
   POPUP_OPEN: void
   MOODLE_LOAD: void
+  MOODLE_SYNC_NOW: void
+  MOODLE_SYNC_DISABLE: void
 
   REQUEST_AUTOLOGIN: void
   AUTOLOGIN_FAILED: void

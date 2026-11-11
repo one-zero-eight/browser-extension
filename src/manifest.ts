@@ -46,6 +46,8 @@ export default defineManifest({
     'storage',
     // Allows us to modify User-Agent for auto sign in
     'declarativeNetRequestWithHostAccess',
+    // Syncs Moodle data to InNoHassle every 6 hours, when turned on
+    'alarms',
   ],
   host_permissions: [
     // Allows us to implement auto sign in

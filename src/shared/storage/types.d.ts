@@ -31,6 +31,13 @@ export interface SharedStorage {
   innohassleSearchUrl: string
   innohassleEventsUrl: string
 
+  // Moodle sync to InNoHassle
+  moodleSyncEnabled: boolean
+  moodleSyncLastSuccessMS: number
+  moodleSyncLastError: string
+  // Course id -> sha256 hex of the JSON last sent for it
+  moodleSyncContentHashes: Record<string, string>
+
   // User pinned links
   pinnedLinks: string
 }

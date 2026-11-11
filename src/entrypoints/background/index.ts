@@ -2,10 +2,23 @@ import { applyUserAgentRule } from '@/entrypoints/background/net-rules'
 import { autoLogIn } from '@/features/autologin/background'
 import { fetchAllCourses, fetchCourses } from '@/features/courses/background'
 import { syncMoodleCalendarUrl } from '@/features/moodle-calendar-url/background'
+import { disableMoodleSync, syncMoodleData } from '@/features/moodle-sync/background'
 import { onMessage, sendMessageToMoodleTabs } from '@/shared/messages'
 import { refreshToken } from '@/shared/moodle-ws-api/token-store'
 import { getStored, setStored } from '@/shared/storage'
 import { initializeUsefulLinksIfNeeded } from '@/features/useful-links/background'
+
+const MOODLE_SYNC_ALARM = 'moodle-sync'
+
+chrome.alarms.get(MOODLE_SYNC_ALARM).then((alarm) => {
+  if (!alarm)
+    chrome.alarms.create(MOODLE_SYNC_ALARM, { periodInMinutes: 360 })
+})
+
+chrome.alarms.onAlarm.addListener((alarm) => {
+  if (alarm.name === MOODLE_SYNC_ALARM)
+    syncMoodleData()
+})
 
 chrome.runtime.onInstalled.addListener(() => {
   applyUserAgentRule()
@@ -16,6 +29,7 @@ onMessage('POPUP_OPEN', () => {
   fetchCourses()
   fetchAllCourses()
   syncMoodleCalendarUrl()
+  syncMoodleData()
   initializeUsefulLinksIfNeeded()
 })
 
@@ -45,6 +59,7 @@ onMessage('MOODLE_LOAD', () => {
         else {
           // Sync the calendar url if needed
           syncMoodleCalendarUrl()
+          syncMoodleData()
         }
       })
     }
@@ -58,3 +73,7 @@ onMessage('REQUEST_AUTOLOGIN', () => {
     sendMessageToMoodleTabs(success ? 'AUTOLOGIN_SUCCEEDED' : 'AUTOLOGIN_FAILED')
   })
 })
+
+onMessage('MOODLE_SYNC_NOW', () => syncMoodleData(true))
+
+onMessage('MOODLE_SYNC_DISABLE', () => disableMoodleSync())
