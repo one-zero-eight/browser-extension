@@ -1,9 +1,16 @@
 import * as process from 'node:process'
 import { defineManifest } from '@crxjs/vite-plugin'
+import { loadEnv } from 'vite'
 import packageData from '../package.json'
 
 const isDev = process.env.NODE_ENV === 'development'
 const isFirefox = process.env.BROWSER === 'firefox'
+
+// Local backends from .env.local need host permission; without it the browser enforces CORS
+const env = loadEnv(process.env.NODE_ENV ?? 'development', process.cwd(), 'VITE_')
+const localBackendPermissions = [env.VITE_INNOHASSLE_SEARCH_URL, env.VITE_INNOHASSLE_EVENTS_URL]
+  .filter(Boolean)
+  .map(url => `${new URL(url).origin}/*`)
 
 export default defineManifest({
   name: `${packageData.displayName || packageData.name}${isDev ? ' [dev]' : ''}`,
@@ -53,6 +60,7 @@ export default defineManifest({
     // Allows us to implement auto sign in
     'https://moodle.innopolis.university/*',
     // Allows us to send requests to our backend
+    ...localBackendPermissions,
     'https://*.innohassle.ru/*',
   ],
 

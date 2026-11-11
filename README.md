@@ -55,6 +55,14 @@ Load it into the browser:
 
 Keep `pnpm dev` running; in Chrome the extension reloads automatically as you edit.
 
+#### Local backend
+
+To use a local InNoHassle backend instead of `api.innohassle.ru`, copy
+`.env.example` to `.env.local` and set `VITE_INNOHASSLE_SEARCH_URL` and/or
+`VITE_INNOHASSLE_EVENTS_URL`, then restart the dev server. The origin is added to
+`host_permissions` automatically (in Firefox grant it in `about:addons` too). Tokens
+are still issued by the production Accounts API, so the local backend must accept them.
+
 ### Production build
 
 ```sh
