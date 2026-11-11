@@ -15,7 +15,7 @@ Welcome to InNoHassle Tools, a browser extension developed specifically for stud
   - which course activities you completed;
   - your course groups;
   - course announcements;
-  - the text of your courses and the names and links of course files (not the files themselves).
+  - the text of your courses and your course files (PDF, Office documents, text files and images up to 25 MB). InNoHassle reads the text of these files to search them for you.
 
   It never sends other participants' data or your messages.
 
@@ -25,7 +25,7 @@ We collect and use your information solely for the purpose of providing the auto
 
 1. Autologin to Moodle: Automatically log you into Moodle using the stored token when you open the page.
 2. Fetch Course Lists: Retrieve your course lists from Moodle to display quick links for easy access.
-3. Send Moodle data to InNoHassle: Only if you turn on "Send Moodle data to InNoHassle" (off by default), send your Moodle data to the InNoHassle search service under your InNoHassle account, to show it on innohassle.ru. Turning it off deletes it.
+3. Send Moodle data to InNoHassle: Only if you turn on "Send Moodle data to InNoHassle" (off by default), send your Moodle data to the InNoHassle search service under your InNoHassle account, to show it on innohassle.ru and to search your course files for you. Turning it off deletes it.
 
 ## Data Security
 

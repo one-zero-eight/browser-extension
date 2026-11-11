@@ -27,8 +27,8 @@ export function MoodleSyncToggle({ increased = false }: { increased?: boolean })
       <div className="min-w-0">
         <div className="text-sm font-medium">Send Moodle data to InNoHassle</div>
         <div className="mt-0.5 text-xs text-base-content/50">
-          Calendar, deadlines, grades, progress and the text of your courses, for your InNoHassle calendar and
-          recommendations. Turning it off deletes them from InNoHassle.
+          Calendar, deadlines, grades, progress, and the text and files of your courses, for your InNoHassle calendar,
+          recommendations, and search. Turning it off deletes them from InNoHassle.
         </div>
         {lastError
           ? <div className="mt-0.5 text-xs text-error">{lastError}</div>

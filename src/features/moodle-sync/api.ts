@@ -123,6 +123,7 @@ export interface MoodleFileIn {
   size_bytes: number | null
   mime_type: string | null
   modified_at: number | null
+  sha256: string | null
 }
 
 export interface MoodleModuleIn {
@@ -162,10 +163,19 @@ export function putMoodleOverview(body: MoodleOverviewIn) {
 }
 
 export function putMoodleCourseContent(courseId: number, body: MoodleCourseContentIn) {
-  return searchQueryPromise<void>({
+  return searchQueryPromise<{ files_missing: string[] }>({
     url: `/users/my-moodle/courses/${courseId}/content`,
     method: 'PUT',
     data: body,
+  })
+}
+
+export function putMoodleFile(sha256: string, file: Blob) {
+  return searchQueryPromise<void>({
+    url: `/users/my-moodle/files/${sha256}`,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/octet-stream' },
+    data: file,
   })
 }
 

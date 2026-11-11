@@ -37,6 +37,8 @@ export interface SharedStorage {
   moodleSyncLastError: string
   // Course id -> sha256 hex of the JSON last sent for it
   moodleSyncContentHashes: Record<string, string>
+  // File key (url without query|timemodified|size) -> sha256 of its bytes
+  moodleSyncFileHashes: Record<string, string>
 
   // User pinned links
   pinnedLinks: string

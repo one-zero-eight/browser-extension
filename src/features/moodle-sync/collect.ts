@@ -14,6 +14,7 @@ import type {
   MoodleOverviewIn,
   MoodleQuizIn,
 } from './api'
+import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
 import { moodle } from '@/shared/moodle-ws-api'
 
 const HTML_MAX = 200_000
@@ -22,6 +23,11 @@ const DAY = 86400
 const CONTENT_RECENT_DAYS = 30
 const MOODLE_URL = 'https://moodle.innopolis.university/'
 const MAX_FILES_PER_MODULE = 200
+// The server reads these types up to this size (a file of another type or a bigger one is not downloaded)
+const FILE_MAX = 25 * 1024 * 1024
+const FILE_SUFFIXES: Record<string, true> = Object.fromEntries(
+  ['.pdf', '.doc', '.docx', '.rtf', '.odt', '.ppt', '.pptx', '.odp', '.xls', '.xlsx', '.ods', '.txt', '.md', '.png', '.jpg', '.jpeg', '.webp'].map(s => [s, true]),
+)
 
 function cut(html: string | null | undefined, max = HTML_MAX) {
   return (html ?? '').slice(0, max)
@@ -262,7 +268,21 @@ function fileLink(fileurl: string) {
   return fileurl.replace('/webservice/pluginfile.php/', '/pluginfile.php/').split('?')[0]
 }
 
-export async function collectCourseContent(courseId: number): Promise<MoodleCourseContentIn> {
+export async function sha256Hex(data: BufferSource) {
+  const digest = await crypto.subtle.digest('SHA-256', data)
+  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('')
+}
+
+export interface FileHashCache {
+  // File key (url without query|timemodified|size) -> sha256 of its bytes: the last sync's, and this sync's
+  old: Record<string, string>
+  next: Record<string, string>
+}
+
+export async function collectCourseContent(
+  courseId: number,
+  hashes: FileHashCache,
+): Promise<{ content: MoodleCourseContentIn, fileUrls: Map<string, string> }> {
   const pages = new Map<number, string>()
   const pagesRes = await attempt(`pages of ${courseId}`, () => moodle.mod.page.getPagesByCourses({ courseids: [courseId] }))
   for (const p of pagesRes?.pages ?? [])
@@ -270,6 +290,7 @@ export async function collectCourseContent(courseId: number): Promise<MoodleCour
 
   const contents = await moodle.core.course.getContents({ courseid: courseId })
 
+  const pending: { file: MoodleFileIn, rawUrl: string, filesize: number, timemodified: number }[] = []
   const sections = contents.map(section => ({
     section_id: section.id,
     name: section.name ?? '',
@@ -282,13 +303,16 @@ export async function collectCourseContent(courseId: number): Promise<MoodleCour
         const url = fileLink(c.fileurl)
         if (!url.startsWith(MOODLE_URL))
           continue
-        files.push({
+        const file: MoodleFileIn = {
           filename: c.filename,
           url,
           size_bytes: c.filesize ?? null,
           mime_type: c.mimetype ?? null,
           modified_at: date(c.timemodified),
-        })
+          sha256: null,
+        }
+        files.push(file)
+        pending.push({ file, rawUrl: c.fileurl, filesize: c.filesize ?? 0, timemodified: c.timemodified ?? 0 })
       }
       return {
         module_id: m.id,
@@ -315,5 +339,23 @@ export async function collectCourseContent(courseId: number): Promise<MoodleCour
     }))
   })
 
-  return { sections, announcements: announcements ?? [] }
+  // The files' bytes are hashed (the server stores a file once per hash). A file seen before is not downloaded again.
+  const fileUrls = new Map<string, string>()
+  for (const { file, rawUrl, filesize, timemodified } of pending) {
+    const suffix = /\.[^.]+$/.exec(file.filename)?.[0].toLowerCase() ?? ''
+    if (FILE_SUFFIXES[suffix] !== true || filesize > FILE_MAX)
+      continue
+    const key = `${rawUrl.split('?')[0]}|${timemodified}|${filesize}`
+    try {
+      const sha = hashes.old[key] ?? await sha256Hex(await (await downloadFileByUrl(rawUrl)).arrayBuffer())
+      hashes.next[key] = sha
+      file.sha256 = sha
+      fileUrls.set(sha, rawUrl)
+    }
+    catch (e) {
+      console.warn(`Moodle sync: file ${file.filename} of course ${courseId} not read`, e)
+    }
+  }
+
+  return { content: { sections, announcements: announcements ?? [] }, fileUrls }
 }

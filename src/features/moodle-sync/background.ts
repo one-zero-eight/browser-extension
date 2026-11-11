@@ -1,6 +1,8 @@
 import axios from 'axios'
-import { deleteMoodleData, putMoodleCourseContent, putMoodleOverview } from './api'
-import { collectCourseContent, collectOverview } from './collect'
+import { deleteMoodleData, putMoodleCourseContent, putMoodleFile, putMoodleOverview } from './api'
+import type { FileHashCache } from './collect'
+import { collectCourseContent, collectOverview, sha256Hex } from './collect'
+import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
 import { getStored, setStored } from '@/shared/storage'
 
 const SYNC_EVERY_MS = 6 * 60 * 60 * 1000
@@ -21,11 +23,6 @@ export function syncMoodleData(force = false) {
   return syncInProgress
 }
 
-async function sha256Hex(text: string) {
-  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text))
-  return [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('')
-}
-
 async function doSync(force: boolean) {
   if (await getStored('moodleSyncEnabled') !== true) {
     return false
@@ -44,13 +41,40 @@ async function doSync(force: boolean) {
     const { courses_without_content } = await putMoodleOverview(overview)
 
     const hashes = { ...(await getStored('moodleSyncContentHashes')) }
+    const fileHashes: FileHashCache = { old: (await getStored('moodleSyncFileHashes')) ?? {}, next: {} }
     for (const id of contentCourseIds) {
       try {
-        const body = await collectCourseContent(id)
-        const hash = await sha256Hex(JSON.stringify(body))
+        const { content, fileUrls } = await collectCourseContent(id, fileHashes)
+        const hash = await sha256Hex(new TextEncoder().encode(JSON.stringify(content)))
         if (hash !== hashes[id] || courses_without_content.includes(id)) {
-          await putMoodleCourseContent(id, body)
-          hashes[id] = hash
+          const { files_missing } = await putMoodleCourseContent(id, content)
+          // The course's hash is kept only when its files are on the server, so that a failed upload is retried
+          let complete = true
+          for (const sha of files_missing) {
+            const url = fileUrls.get(sha)
+            if (!url)
+              continue
+            try {
+              const blob = await downloadFileByUrl(url)
+              if (await sha256Hex(await blob.arrayBuffer()) !== sha) {
+                console.warn(`Moodle sync: a file of course ${id} changed while it was read`)
+                complete = false
+                continue
+              }
+              await putMoodleFile(sha, blob)
+            }
+            catch (e) {
+              if (axios.isAxiosError(e) && [413, 415, 422].includes(e.response?.status ?? 0)) {
+                console.warn(`Moodle sync: InNoHassle does not take a file of course ${id}`, e)
+              }
+              else {
+                console.warn(`Moodle sync: a file of course ${id} was not uploaded`, e)
+                complete = false
+              }
+            }
+          }
+          if (complete)
+            hashes[id] = hash
         }
       }
       catch (e) {
@@ -65,6 +89,7 @@ async function doSync(force: boolean) {
     }
 
     await setStored('moodleSyncContentHashes', hashes)
+    await setStored('moodleSyncFileHashes', fileHashes.next)
     await setStored('moodleSyncLastSuccessMS', Date.now())
     await setStored('moodleSyncLastError', undefined)
     return true
@@ -93,6 +118,7 @@ export async function disableMoodleSync() {
     return false
   }
   await setStored('moodleSyncContentHashes', undefined)
+  await setStored('moodleSyncFileHashes', undefined)
   await setStored('moodleSyncLastSuccessMS', undefined)
   await setStored('moodleSyncLastError', undefined)
   return true
