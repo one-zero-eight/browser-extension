@@ -34,11 +34,14 @@ export interface SharedStorage {
   // Moodle calendar sync to InNoHassle
   calendarSyncLastSuccessMS: number
   calendarSyncLastError: string
+  // Set while a sync runs; cleared when it ends
+  calendarSyncStartedMS: number
 
   // Moodle sync to InNoHassle
   moodleSyncEnabled: boolean
   moodleSyncLastSuccessMS: number
   moodleSyncLastError: string
+  moodleSyncStartedMS: number
   // Course id -> sha256 hex of the JSON last sent for it
   moodleSyncContentHashes: Record<string, string>
   // File key (url without query|timemodified|size) -> sha256 of its bytes

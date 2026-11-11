@@ -36,6 +36,7 @@ async function doSync(force: boolean) {
     return false
   }
 
+  await setStored('moodleSyncStartedMS', Date.now())
   try {
     const { overview, contentCourseIds } = await collectOverview()
     const { courses_without_content } = await putMoodleOverview(overview)
@@ -103,6 +104,9 @@ async function doSync(force: boolean) {
       await setStored('moodleSyncLastError', `Sync failed: ${e instanceof Error ? e.message : String(e)}`)
     }
     return false
+  }
+  finally {
+    await setStored('moodleSyncStartedMS', undefined)
   }
 }
 

@@ -27,6 +27,8 @@ export async function syncMoodleCalendarUrl() {
     return fail('Sign in to Moodle once so the extension can read it')
   }
 
+  await setStored('calendarSyncStartedMS', Date.now())
+
   try {
     const user = await events.usersGetMe()
     if (!user) {
@@ -62,5 +64,8 @@ export async function syncMoodleCalendarUrl() {
   catch (e) {
     console.warn('Moodle calendar sync failed', e)
     return fail(`Calendar sync failed: ${e instanceof Error ? e.message : String(e)}`)
+  }
+  finally {
+    await setStored('calendarSyncStartedMS', undefined)
   }
 }
