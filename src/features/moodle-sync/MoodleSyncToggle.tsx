@@ -26,7 +26,9 @@ export function MoodleSyncToggle({ increased = false }: { increased?: boolean })
         <div className="text-sm font-medium">Send Moodle data to InNoHassle</div>
         <div className="mt-0.5 text-xs text-base-content/50">
           Calendar, deadlines, grades, progress, and the text and files of your courses, for your InNoHassle calendar,
-          recommendations, and search. Turning it off deletes them from InNoHassle.
+          recommendations, and search. Course files, pages, announcements and assignment dates are also shared with the
+          students of your InNoHassle-verified study group; your grades, submissions and progress never are. Turning it off
+          deletes them from InNoHassle.
         </div>
       </div>
       <input

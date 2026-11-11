@@ -131,14 +131,17 @@ export interface MoodleModuleIn {
   name: string
   module: string
   url: string | null
+  external_url: string | null
   html: string
   files: MoodleFileIn[]
+  shareable: boolean
 }
 
 export interface MoodleSectionIn {
   section_id: number
   name: string
   summary_html: string
+  shareable: boolean
   modules: MoodleModuleIn[]
 }
 

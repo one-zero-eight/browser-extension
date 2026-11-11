@@ -24,7 +24,7 @@ const CONTENT_RECENT_DAYS = 30
 const MOODLE_URL = 'https://moodle.innopolis.university/'
 const MAX_FILES_PER_MODULE = 200
 // The server reads these types up to this size (a file of another type or a bigger one is not downloaded)
-const FILE_MAX = 25 * 1024 * 1024
+const FILE_MAX = 100 * 1024 * 1024
 const FILE_SUFFIXES: Record<string, true> = Object.fromEntries(
   ['.pdf', '.doc', '.docx', '.rtf', '.odt', '.ppt', '.pptx', '.odp', '.xls', '.xlsx', '.ods', '.txt', '.md', '.png', '.jpg', '.jpeg', '.webp'].map(s => [s, true]),
 )
@@ -291,39 +291,48 @@ export async function collectCourseContent(
   const contents = await moodle.core.course.getContents({ courseid: courseId })
 
   const pending: { file: MoodleFileIn, rawUrl: string, filesize: number, timemodified: number }[] = []
-  const sections = contents.map(section => ({
-    section_id: section.id,
-    name: section.name ?? '',
-    summary_html: cut(section.summary),
-    modules: (section.modules ?? []).map((m) => {
-      const files: MoodleFileIn[] = []
-      for (const c of m.contents ?? []) {
-        if (c.type !== 'file' || !c.fileurl || files.length >= MAX_FILES_PER_MODULE)
-          continue
-        const url = fileLink(c.fileurl)
-        if (!url.startsWith(MOODLE_URL))
-          continue
-        const file: MoodleFileIn = {
-          filename: c.filename,
-          url,
-          size_bytes: c.filesize ?? null,
-          mime_type: c.mimetype ?? null,
-          modified_at: date(c.timemodified),
-          sha256: null,
+  const sections = contents.map((section) => {
+    // Only what every student of the course sees is shared with the user's study group; a teacher's sync also lists hidden
+    // and restricted material.
+    const sectionShareable = section.visible !== 0 && section.uservisible !== false && !section.availabilityinfo
+    return {
+      section_id: section.id,
+      name: section.name ?? '',
+      summary_html: cut(section.summary),
+      shareable: sectionShareable,
+      modules: (section.modules ?? []).map((m) => {
+        const files: MoodleFileIn[] = []
+        for (const c of m.contents ?? []) {
+          if (c.type !== 'file' || !c.fileurl || files.length >= MAX_FILES_PER_MODULE)
+            continue
+          const url = fileLink(c.fileurl)
+          if (!url.startsWith(MOODLE_URL))
+            continue
+          const file: MoodleFileIn = {
+            filename: c.filename,
+            url,
+            size_bytes: c.filesize ?? null,
+            mime_type: c.mimetype ?? null,
+            modified_at: date(c.timemodified),
+            sha256: null,
+          }
+          files.push(file)
+          pending.push({ file, rawUrl: c.fileurl, filesize: c.filesize ?? 0, timemodified: c.timemodified ?? 0 })
         }
-        files.push(file)
-        pending.push({ file, rawUrl: c.fileurl, filesize: c.filesize ?? 0, timemodified: c.timemodified ?? 0 })
-      }
-      return {
-        module_id: m.id,
-        name: m.name,
-        module: m.modname,
-        url: m.url ?? null,
-        html: cut(m.modname === 'page' ? (pages.get(m.id) ?? m.description) : m.description),
-        files,
-      }
-    }),
-  }))
+        return {
+          module_id: m.id,
+          name: m.name,
+          module: m.modname,
+          url: m.url ?? null,
+          external_url: m.modname === 'url' ? ((m.contents ?? []).find(c => c.type === 'url')?.fileurl?.slice(0, 2000) ?? null) : null,
+          html: cut(m.modname === 'page' ? (pages.get(m.id) ?? m.description) : m.description),
+          files,
+          shareable: sectionShareable && m.visible !== 0 && m.uservisible !== false && m.visibleoncoursepage !== 0
+          && !m.availabilityinfo,
+        }
+      }),
+    }
+  })
 
   const announcements = await attempt(`announcements of ${courseId}`, async () => {
     const forums = await moodle.mod.forum.getForumsByCourses({ courseids: [courseId] })
