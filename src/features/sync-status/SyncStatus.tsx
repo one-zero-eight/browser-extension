@@ -1,8 +1,53 @@
+import type { CourseSyncReport, CourseSyncState } from '@/features/moodle-sync/report'
 import { useStorage } from '@/shared/storage'
 import { cn } from '@/shared/ui/utils'
 
 // A sync that never cleared its marker (the worker was killed mid-run) stops counting as running after this
 const STALE_AFTER_MS = 10 * 60 * 1000
+
+const COURSE_STATE: Record<CourseSyncState, { icon: string, label: string }> = {
+  waiting: { icon: 'icon-[material-symbols--schedule-outline-rounded] text-base-content/50', label: 'Waiting' },
+  syncing: { icon: 'icon-[material-symbols--progress-activity] animate-spin text-primary', label: 'Syncing…' },
+  sent: { icon: 'icon-[material-symbols--check-circle-outline-rounded] text-success', label: 'Sent' },
+  unchanged: { icon: 'icon-[material-symbols--check-circle-outline-rounded] text-success', label: 'Up to date' },
+  incomplete: { icon: 'icon-[material-symbols--warning-outline-rounded] text-warning', label: 'Some files not uploaded, retried next sync' },
+  failed: { icon: 'icon-[material-symbols--error-outline-rounded] text-error', label: 'Failed, retried next sync' },
+  skipped: { icon: 'icon-[material-symbols--remove-circle-outline-rounded] text-base-content/50', label: 'Skipped' },
+}
+
+function fileSummary(files: NonNullable<CourseSyncReport['files']>) {
+  const problems = [
+    [files.unsupported, 'of a type or size not read'],
+    [files.notDownloaded, 'not downloaded from Moodle'],
+    [files.refused, 'refused by InNoHassle'],
+    [files.notUploaded, 'not uploaded'],
+  ].filter(([n]) => n as number > 0).map(([n, why]) => `${n} ${why}`)
+  return `Files: ${files.sent} of ${files.listed} sent${problems.length ? `; ${problems.join(', ')}` : ''}`
+}
+
+function CourseReports({ courses }: { courses: CourseSyncReport[] }) {
+  const sent = courses.filter(c => c.state === 'sent' || c.state === 'unchanged').length
+  return (
+    <details className="ml-6 text-xs">
+      <summary className="cursor-pointer text-base-content/60">{`Courses: ${sent} of ${courses.length} synced`}</summary>
+      <ul className="mt-1 flex flex-col gap-1.5">
+        {courses.map((c) => {
+          const state = COURSE_STATE[c.state]
+          return (
+            <li key={c.id} className="flex items-start gap-1.5">
+              <span className={cn(state.icon, 'mt-0.5 shrink-0 text-sm')} />
+              <div className="min-w-0">
+                <div className="truncate font-medium" title={c.name}>{c.name}</div>
+                <div className="text-base-content/50">{c.note ?? state.label}</div>
+                {c.files && c.files.listed > 0 && <div className="text-base-content/50">{fileSummary(c.files)}</div>}
+              </div>
+            </li>
+          )
+        })}
+      </ul>
+    </details>
+  )
+}
 
 function StatusRow({ label, lastSuccessMS, error, startedMS }: {
   label: string
@@ -47,6 +92,7 @@ export function SyncStatus({ increased = false }: { increased?: boolean }) {
   const dataLastSuccessMS = useStorage('moodleSyncLastSuccessMS')
   const dataError = useStorage('moodleSyncLastError')
   const dataStartedMS = useStorage('moodleSyncStartedMS')
+  const report = useStorage('moodleSyncReport')
   const calendarLastSuccessMS = useStorage('calendarSyncLastSuccessMS')
   const calendarError = useStorage('calendarSyncLastError')
   const calendarStartedMS = useStorage('calendarSyncStartedMS')
@@ -57,6 +103,7 @@ export function SyncStatus({ increased = false }: { increased?: boolean }) {
       {dataEnabled && (
         <StatusRow label="Moodle data → InNoHassle search" lastSuccessMS={dataLastSuccessMS} error={dataError} startedMS={dataStartedMS} />
       )}
+      {dataEnabled && report && report.courses.length > 0 && <CourseReports courses={report.courses} />}
     </div>
   )
 }

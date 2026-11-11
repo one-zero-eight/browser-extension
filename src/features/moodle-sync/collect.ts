@@ -282,7 +282,7 @@ export interface FileHashCache {
 export async function collectCourseContent(
   courseId: number,
   hashes: FileHashCache,
-): Promise<{ content: MoodleCourseContentIn, fileUrls: Map<string, string> }> {
+): Promise<{ content: MoodleCourseContentIn, fileUrls: Map<string, string>, files: { listed: number, unsupported: number, notDownloaded: number } }> {
   const pages = new Map<number, string>()
   const pagesRes = await attempt(`pages of ${courseId}`, () => moodle.mod.page.getPagesByCourses({ courseids: [courseId] }))
   for (const p of pagesRes?.pages ?? [])
@@ -350,10 +350,13 @@ export async function collectCourseContent(
 
   // The files' bytes are hashed (the server stores a file once per hash). A file seen before is not downloaded again.
   const fileUrls = new Map<string, string>()
+  const stats = { listed: pending.length, unsupported: 0, notDownloaded: 0 }
   for (const { file, rawUrl, filesize, timemodified } of pending) {
     const suffix = /\.[^.]+$/.exec(file.filename)?.[0].toLowerCase() ?? ''
-    if (FILE_SUFFIXES[suffix] !== true || filesize > FILE_MAX)
+    if (FILE_SUFFIXES[suffix] !== true || filesize > FILE_MAX) {
+      stats.unsupported++
       continue
+    }
     const key = `${rawUrl.split('?')[0]}|${timemodified}|${filesize}`
     try {
       const sha = hashes.old[key] ?? await sha256Hex(await (await downloadFileByUrl(rawUrl)).arrayBuffer())
@@ -362,9 +365,10 @@ export async function collectCourseContent(
       fileUrls.set(sha, rawUrl)
     }
     catch (e) {
+      stats.notDownloaded++
       console.warn(`Moodle sync: file ${file.filename} of course ${courseId} not read`, e)
     }
   }
 
-  return { content: { sections, announcements: announcements ?? [] }, fileUrls }
+  return { content: { sections, announcements: announcements ?? [] }, fileUrls, files: stats }
 }

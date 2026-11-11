@@ -2,6 +2,7 @@ import axios from 'axios'
 import { deleteMoodleData, putMoodleCourseContent, putMoodleFile, putMoodleOverview } from './api'
 import type { FileHashCache } from './collect'
 import { collectCourseContent, collectOverview, sha256Hex } from './collect'
+import type { CourseSyncReport } from './report'
 import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
 import { getStored, setStored } from '@/shared/storage'
 
@@ -43,12 +44,27 @@ async function doSync(force: boolean) {
 
     const hashes = { ...(await getStored('moodleSyncContentHashes')) }
     const fileHashes: FileHashCache = { old: (await getStored('moodleSyncFileHashes')) ?? {}, next: {} }
+    const reports: CourseSyncReport[] = overview.courses.map(c => ({
+      id: c.course_id,
+      name: c.fullname,
+      state: contentCourseIds.includes(c.course_id) ? 'waiting' : 'skipped',
+      note: contentCourseIds.includes(c.course_id) ? undefined : 'Course ended more than 30 days ago: its content is not sent',
+    }))
+    const publish = () => setStored('moodleSyncReport', { courses: reports })
+    await publish()
     for (const id of contentCourseIds) {
+      const report = reports.find(r => r.id === id)!
+      report.state = 'syncing'
+      await publish()
       try {
-        const { content, fileUrls } = await collectCourseContent(id, fileHashes)
+        const { content, fileUrls, files } = await collectCourseContent(id, fileHashes)
         const hash = await sha256Hex(new TextEncoder().encode(JSON.stringify(content)))
+        const counts = { listed: files.listed, sent: 0, unsupported: files.unsupported, notDownloaded: files.notDownloaded, refused: 0, notUploaded: 0 }
+        report.files = counts
         if (hash !== hashes[id] || courses_without_content.includes(id)) {
           const { files_missing } = await putMoodleCourseContent(id, content)
+          // The files InNoHassle already has were sent earlier
+          counts.sent = fileUrls.size - files_missing.filter(sha => fileUrls.has(sha)).length
           // The course's hash is kept only when its files are on the server, so that a failed upload is retried
           let complete = true
           for (const sha of files_missing) {
@@ -59,29 +75,41 @@ async function doSync(force: boolean) {
               const blob = await downloadFileByUrl(url)
               if (await sha256Hex(await blob.arrayBuffer()) !== sha) {
                 console.warn(`Moodle sync: a file of course ${id} changed while it was read`)
+                counts.refused++
                 complete = false
                 continue
               }
               await putMoodleFile(sha, blob)
+              counts.sent++
             }
             catch (e) {
               if (axios.isAxiosError(e) && [413, 415, 422].includes(e.response?.status ?? 0)) {
                 console.warn(`Moodle sync: InNoHassle does not take a file of course ${id}`, e)
+                counts.refused++
               }
               else {
                 console.warn(`Moodle sync: a file of course ${id} was not uploaded`, e)
+                counts.notUploaded++
                 complete = false
               }
             }
           }
           if (complete)
             hashes[id] = hash
+          report.state = complete ? 'sent' : 'incomplete'
+        }
+        else {
+          counts.sent = fileUrls.size
+          report.state = 'unchanged'
         }
       }
       catch (e) {
         // This course keeps its old hash, so it is retried next time
         console.warn(`Moodle sync: content of course ${id} failed`, e)
+        report.state = 'failed'
+        report.note = e instanceof Error ? e.message : String(e)
       }
+      await publish()
     }
     const enrolled = new Set(overview.courses.map(c => String(c.course_id)))
     for (const id of Object.keys(hashes)) {
@@ -125,5 +153,6 @@ export async function disableMoodleSync() {
   await setStored('moodleSyncFileHashes', undefined)
   await setStored('moodleSyncLastSuccessMS', undefined)
   await setStored('moodleSyncLastError', undefined)
+  await setStored('moodleSyncReport', undefined)
   return true
 }
