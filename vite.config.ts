@@ -33,6 +33,7 @@ export default defineConfig({
 
   // https://github.com/guocaoyi/create-chrome-ext/issues/74
   server: {
+    host: true,
     port: 5173,
     strictPort: true,
     hmr: {
