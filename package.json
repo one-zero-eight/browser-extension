@@ -8,7 +8,7 @@
   "description": "Convenient tools for Moodle, InNoHassle and other services at Innopolis University.",
   "scripts": {
     "dev": "BROWSER=chrome vite",
-    "dev:firefox": "BROWSER=firefox vite",
+    "dev:firefox": "BROWSER=firefox vite build --watch",
     "build:chrome": "tsc && BROWSER=chrome vite build",
     "build:firefox": "tsc && BROWSER=firefox vite build",
     "zip:chrome": "pnpm run build:chrome && BROWSER=chrome node scripts/zip.js",
