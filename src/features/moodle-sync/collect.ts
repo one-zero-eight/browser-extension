@@ -20,7 +20,8 @@ import { moodle } from '@/shared/moodle-ws-api'
 const HTML_MAX = 200_000
 const DESCRIPTION_MAX = 20_000
 const DAY = 86400
-const CONTENT_RECENT_DAYS = 30
+// Assignments, quizzes, completion and groups are read only for courses that ended at most this long ago
+const ACTIVE_RECENT_DAYS = 30
 const MOODLE_URL = 'https://moodle.innopolis.university/'
 const MAX_FILES_PER_MODULE = 200
 // The server reads these types up to this size (a file of another type or a bigger one is not downloaded)
@@ -53,7 +54,7 @@ async function attempt<T>(what: string, fn: () => Promise<T>): Promise<T | undef
   }
 }
 
-export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, contentCourseIds: number[] }> {
+export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, activeCourseIds: number[] }> {
   const now = Math.floor(Date.now() / 1000)
   const windowFrom = now - 30 * DAY
   const windowTo = now + 180 * DAY
@@ -71,8 +72,8 @@ export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, c
     ends_at: date(c.enddate),
   }))
   const allCourseIds = moodleCourses.map(c => c.id)
-  const contentCourseIds = moodleCourses
-    .filter(c => !c.enddate || c.enddate > now - CONTENT_RECENT_DAYS * DAY)
+  const activeCourseIds = moodleCourses
+    .filter(c => !c.enddate || c.enddate > now - ACTIVE_RECENT_DAYS * DAY)
     .map(c => c.id)
 
   const events = await attempt('events', async () => {
@@ -155,10 +156,10 @@ export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, c
   })))))
     .filter(present)
 
-  const assignments = await collectAssignments(contentCourseIds, windowFrom, windowTo, limit)
-  const quizzes = await collectQuizzes(contentCourseIds, windowFrom, limit)
+  const assignments = await collectAssignments(activeCourseIds, windowFrom, windowTo, limit)
+  const quizzes = await collectQuizzes(activeCourseIds, windowFrom, limit)
 
-  const completion = (await Promise.all(contentCourseIds.map(courseid => limit(() => attempt(`completion of ${courseid}`, async () => {
+  const completion = (await Promise.all(activeCourseIds.map(courseid => limit(() => attempt(`completion of ${courseid}`, async () => {
     const res = await moodle.core.completion.getActivitiesCompletionStatus({ courseid, userid })
     return {
       course_id: courseid,
@@ -169,7 +170,7 @@ export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, c
   })))))
     .filter(present)
 
-  const groups = (await Promise.all(contentCourseIds.map(courseid => limit(() => attempt(`groups of ${courseid}`, async () => {
+  const groups = (await Promise.all(activeCourseIds.map(courseid => limit(() => attempt(`groups of ${courseid}`, async () => {
     const res = await moodle.core.group.getCourseUserGroups({ courseid, userid })
     return {
       course_id: courseid,
@@ -190,7 +191,7 @@ export async function collectOverview(): Promise<{ overview: MoodleOverviewIn, c
       completion,
       groups,
     },
-    contentCourseIds,
+    activeCourseIds,
   }
 }
 

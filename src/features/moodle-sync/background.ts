@@ -39,7 +39,7 @@ async function doSync(force: boolean) {
 
   await setStored('moodleSyncStartedMS', Date.now())
   try {
-    const { overview, contentCourseIds } = await collectOverview()
+    const { overview, activeCourseIds } = await collectOverview()
     const { courses_without_content } = await putMoodleOverview(overview)
 
     const hashes = { ...(await getStored('moodleSyncContentHashes')) }
@@ -47,8 +47,7 @@ async function doSync(force: boolean) {
     const reports: CourseSyncReport[] = overview.courses.map(c => ({
       id: c.course_id,
       name: c.fullname,
-      state: contentCourseIds.includes(c.course_id) ? 'waiting' : 'skipped',
-      note: contentCourseIds.includes(c.course_id) ? undefined : 'Course ended more than 30 days ago: its content is not sent',
+      state: 'waiting',
     }))
     const perCourse = (label: string, rows: { items?: unknown[], groups?: unknown[] }[], expected: number): DataSyncReport => ({
       label,
@@ -60,14 +59,14 @@ async function doSync(force: boolean) {
       { label: 'Courses', items: overview.courses.length },
       overview.events ? { label: 'Calendar events', items: overview.events.length } : { label: 'Calendar events', items: 0, failed: true },
       perCourse('Grades', overview.grades, overview.courses.length),
-      perCourse('Assignments', overview.assignments, contentCourseIds.length),
-      perCourse('Quizzes', overview.quizzes, contentCourseIds.length),
-      perCourse('Activity completion', overview.completion, contentCourseIds.length),
-      perCourse('Course groups', overview.groups, contentCourseIds.length),
+      perCourse('Assignments', overview.assignments, activeCourseIds.length),
+      perCourse('Quizzes', overview.quizzes, activeCourseIds.length),
+      perCourse('Activity completion', overview.completion, activeCourseIds.length),
+      perCourse('Course groups', overview.groups, activeCourseIds.length),
     ]
     const publish = () => setStored('moodleSyncReport', { data, courses: reports })
     await publish()
-    for (const id of contentCourseIds) {
+    for (const { course_id: id } of overview.courses) {
       const report = reports.find(r => r.id === id)!
       report.state = 'syncing'
       await publish()

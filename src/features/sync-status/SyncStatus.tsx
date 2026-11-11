@@ -12,7 +12,6 @@ const COURSE_STATE: Record<CourseSyncState, { icon: string, label: string }> = {
   unchanged: { icon: 'icon-[material-symbols--check-circle-outline-rounded] text-success', label: 'Up to date' },
   incomplete: { icon: 'icon-[material-symbols--warning-outline-rounded] text-warning', label: 'Some files not uploaded, retried next sync' },
   failed: { icon: 'icon-[material-symbols--error-outline-rounded] text-error', label: 'Failed, retried next sync' },
-  skipped: { icon: 'icon-[material-symbols--remove-circle-outline-rounded] text-base-content/50', label: 'Skipped' },
 }
 
 function fileSummary(files: NonNullable<CourseSyncReport['files']>) {
@@ -60,7 +59,7 @@ function CourseReports({ data, courses }: { data: DataSyncReport[], courses: Cou
       </ul>
       <ul className="mt-1.5 flex flex-col gap-1.5">
         {courses.map((c) => {
-          const state = COURSE_STATE[c.state]
+          const state = COURSE_STATE[c.state] ?? COURSE_STATE.waiting
           return (
             <li key={c.id} className="flex items-start gap-1.5">
               <span className={cn(state.icon, 'mt-0.5 shrink-0 text-sm')} />

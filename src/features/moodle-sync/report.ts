@@ -1,5 +1,5 @@
 /** What the last Moodle data sync did with each course, kept for the popup (SharedStorage.moodleSyncReport). */
-export type CourseSyncState = 'waiting' | 'syncing' | 'sent' | 'unchanged' | 'incomplete' | 'failed' | 'skipped'
+export type CourseSyncState = 'waiting' | 'syncing' | 'sent' | 'unchanged' | 'incomplete' | 'failed'
 
 export interface CourseFileReport {
   /** Files the course lists */
