@@ -3,7 +3,7 @@ import { defineConfig } from 'orval'
 export default defineConfig({
   events: {
     input: {
-      target: 'https://api.innohassle.ru/events/staging-v0/openapi.json',
+      target: 'https://api.innohassle.ru/schedule/staging-v0/openapi.json',
     },
     output: {
       mode: 'single',

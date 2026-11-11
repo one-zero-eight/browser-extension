@@ -28,11 +28,10 @@ AxiosEvents.interceptors.request.use(async (request) => {
 AxiosEvents.interceptors.response.use(
   response => response,
   async (error) => {
-    const { response } = error
-    if (response.status === 401) {
-      invalidateToken()
-      return Promise.reject(error)
+    if (error.response?.status === 401) {
+      await invalidateToken()
     }
+    return Promise.reject(error)
   },
 )
 
