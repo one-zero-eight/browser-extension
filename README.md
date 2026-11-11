@@ -37,17 +37,23 @@ pnpm dev            # Chrome build, watch mode
 pnpm dev:firefox    # Firefox build, watch mode
 ```
 
-Vite serves on <http://localhost:5173> and writes the unpacked extension to
-`build/` with hot-reload on save.
+In Chrome, Vite serves on <http://localhost:5173> and writes the unpacked extension to
+`build/` with hot-reload on save. In Firefox, crxjs can't serve extension pages
+from the dev server, so `pnpm dev:firefox` runs `vite build --watch`: `build/` is
+rebuilt on save, but you reload the add-on manually in `about:debugging`.
 
 Load it into the browser:
 
 - **Chrome / Edge** — open `chrome://extensions`, enable **Developer mode**,
   click **Load unpacked**, select the `build/` directory.
 - **Firefox** — open `about:debugging#/runtime/this-firefox`, click
-  **Load Temporary Add-on**, select `build/manifest.json`.
+  **Load Temporary Add-on**, select `build/manifest.json`. Then grant the host
+  permissions (Firefox does not grant them automatically, so without this the
+  extension can't read Moodle and "Sign in" does nothing):
+  1. Open `about:addons`, select the extension, open the **Permissions** tab.
+  2. Enable access to `moodle.innopolis.university` and `*.innohassle.ru`.
 
-Keep `pnpm dev` running; the extension reloads automatically as you edit.
+Keep `pnpm dev` running; in Chrome the extension reloads automatically as you edit.
 
 ### Production build
 
