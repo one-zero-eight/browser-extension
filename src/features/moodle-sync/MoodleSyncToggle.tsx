@@ -4,8 +4,6 @@ import { cn } from '@/shared/ui/utils'
 
 export function MoodleSyncToggle({ increased = false }: { increased?: boolean }) {
   const enabled = useStorage('moodleSyncEnabled') === true
-  const lastError = useStorage('moodleSyncLastError')
-  const lastSuccessMS = useStorage('moodleSyncLastSuccessMS')
 
   async function toggle() {
     if (enabled) {
@@ -30,11 +28,6 @@ export function MoodleSyncToggle({ increased = false }: { increased?: boolean })
           Calendar, deadlines, grades, progress, and the text and files of your courses, for your InNoHassle calendar,
           recommendations, and search. Turning it off deletes them from InNoHassle.
         </div>
-        {lastError
-          ? <div className="mt-0.5 text-xs text-error">{lastError}</div>
-          : enabled && lastSuccessMS
-            ? <div className="mt-0.5 text-xs text-base-content/50">{`Last synced ${new Date(lastSuccessMS).toLocaleString()}`}</div>
-            : null}
       </div>
       <input
         type="checkbox"

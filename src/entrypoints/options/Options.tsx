@@ -7,6 +7,7 @@ import LinkSetting from '@/entrypoints/options/components/LinkSetting'
 import AboutSection from '@/entrypoints/options/components/AboutSection'
 import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { MoodleSyncToggle } from '@/features/moodle-sync/MoodleSyncToggle'
+import { SyncStatus } from '@/features/sync-status/SyncStatus'
 
 export default function Options() {
   const pinnedLinks = JSON.parse(useStorage('pinnedLinks') ?? '{}') as Record<
@@ -90,6 +91,7 @@ export default function Options() {
         <OptionBlock title="Features" id="features">
           <AutologinToggle increased />
           <MoodleSyncToggle increased />
+          <SyncStatus increased />
         </OptionBlock>
 
         <AboutSection />

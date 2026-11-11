@@ -4,6 +4,7 @@ import { TopBar } from '@/entrypoints/popup/TopBar'
 import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { CoursesList } from '@/features/courses/CoursesList'
 import { Search } from '@/features/search/Search'
+import { SyncStatus } from '@/features/sync-status/SyncStatus'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
 import { sendMessage } from '@/shared/messages'
 
@@ -23,6 +24,7 @@ export default function Popup() {
       </Search>
       <div className="mt-3">
         <AutologinToggle />
+        <SyncStatus />
       </div>
     </div>
   )

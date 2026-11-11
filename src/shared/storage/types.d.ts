@@ -31,6 +31,10 @@ export interface SharedStorage {
   innohassleSearchUrl: string
   innohassleEventsUrl: string
 
+  // Moodle calendar sync to InNoHassle
+  calendarSyncLastSuccessMS: number
+  calendarSyncLastError: string
+
   // Moodle sync to InNoHassle
   moodleSyncEnabled: boolean
   moodleSyncLastSuccessMS: number
