@@ -1,4 +1,4 @@
-import type { CourseSyncReport, CourseSyncState } from '@/features/moodle-sync/report'
+import type { CourseSyncReport, CourseSyncState, DataSyncReport } from '@/features/moodle-sync/report'
 import { useStorage } from '@/shared/storage'
 import { cn } from '@/shared/ui/utils'
 
@@ -25,12 +25,40 @@ function fileSummary(files: NonNullable<CourseSyncReport['files']>) {
   return `Files: ${files.sent} of ${files.listed} sent${problems.length ? `; ${problems.join(', ')}` : ''}`
 }
 
-function CourseReports({ courses }: { courses: CourseSyncReport[] }) {
+function DataReport({ part }: { part: DataSyncReport }) {
+  const incomplete = part.failed || (part.expected !== undefined && part.answered !== undefined && part.answered < part.expected)
+  let detail = `${part.items} sent`
+  if (part.failed)
+    detail = 'Moodle did not answer; the old data stays'
+  else if (incomplete)
+    detail = `${part.items} sent; Moodle answered for ${part.answered} of ${part.expected} courses, the others keep their old data`
+  return (
+    <li className="flex items-start gap-1.5">
+      <span
+        className={cn(
+          incomplete
+            ? 'icon-[material-symbols--warning-outline-rounded] text-warning'
+            : 'icon-[material-symbols--check-circle-outline-rounded] text-success',
+          'mt-0.5 shrink-0 text-sm',
+        )}
+      />
+      <div className="min-w-0">
+        <span className="font-medium">{part.label}</span>
+        <span className="text-base-content/50">{`: ${detail}`}</span>
+      </div>
+    </li>
+  )
+}
+
+function CourseReports({ data, courses }: { data: DataSyncReport[], courses: CourseSyncReport[] }) {
   const sent = courses.filter(c => c.state === 'sent' || c.state === 'unchanged').length
   return (
     <details className="ml-6 text-xs">
-      <summary className="cursor-pointer text-base-content/60">{`Courses: ${sent} of ${courses.length} synced`}</summary>
-      <ul className="mt-1 flex flex-col gap-1.5">
+      <summary className="cursor-pointer text-base-content/60">{`Details: ${sent} of ${courses.length} courses synced`}</summary>
+      <ul className="mt-1 flex flex-col gap-1.5 border-b border-base-300 pb-1.5">
+        {data.map(part => <DataReport key={part.label} part={part} />)}
+      </ul>
+      <ul className="mt-1.5 flex flex-col gap-1.5">
         {courses.map((c) => {
           const state = COURSE_STATE[c.state]
           return (
@@ -103,7 +131,7 @@ export function SyncStatus({ increased = false }: { increased?: boolean }) {
       {dataEnabled && (
         <StatusRow label="Moodle data → InNoHassle search" lastSuccessMS={dataLastSuccessMS} error={dataError} startedMS={dataStartedMS} />
       )}
-      {dataEnabled && report && report.courses.length > 0 && <CourseReports courses={report.courses} />}
+      {dataEnabled && report && report.courses.length > 0 && <CourseReports data={report.data ?? []} courses={report.courses} />}
     </div>
   )
 }

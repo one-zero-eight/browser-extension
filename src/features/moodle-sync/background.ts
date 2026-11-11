@@ -2,7 +2,7 @@ import axios from 'axios'
 import { deleteMoodleData, putMoodleCourseContent, putMoodleFile, putMoodleOverview } from './api'
 import type { FileHashCache } from './collect'
 import { collectCourseContent, collectOverview, sha256Hex } from './collect'
-import type { CourseSyncReport } from './report'
+import type { CourseSyncReport, DataSyncReport } from './report'
 import { downloadFileByUrl } from '@/shared/moodle-ws-api/download-file'
 import { getStored, setStored } from '@/shared/storage'
 
@@ -50,7 +50,22 @@ async function doSync(force: boolean) {
       state: contentCourseIds.includes(c.course_id) ? 'waiting' : 'skipped',
       note: contentCourseIds.includes(c.course_id) ? undefined : 'Course ended more than 30 days ago: its content is not sent',
     }))
-    const publish = () => setStored('moodleSyncReport', { courses: reports })
+    const perCourse = (label: string, rows: { items?: unknown[], groups?: unknown[] }[], expected: number): DataSyncReport => ({
+      label,
+      items: rows.reduce((n, r) => n + (r.items ?? r.groups ?? []).length, 0),
+      answered: rows.length,
+      expected,
+    })
+    const data: DataSyncReport[] = [
+      { label: 'Courses', items: overview.courses.length },
+      overview.events ? { label: 'Calendar events', items: overview.events.length } : { label: 'Calendar events', items: 0, failed: true },
+      perCourse('Grades', overview.grades, overview.courses.length),
+      perCourse('Assignments', overview.assignments, contentCourseIds.length),
+      perCourse('Quizzes', overview.quizzes, contentCourseIds.length),
+      perCourse('Activity completion', overview.completion, contentCourseIds.length),
+      perCourse('Course groups', overview.groups, contentCourseIds.length),
+    ]
+    const publish = () => setStored('moodleSyncReport', { data, courses: reports })
     await publish()
     for (const id of contentCourseIds) {
       const report = reports.find(r => r.id === id)!

@@ -25,6 +25,19 @@ export interface CourseSyncReport {
   files?: CourseFileReport
 }
 
+/** One kind of overview data (grades, deadlines, ...) as the last sync sent it */
+export interface DataSyncReport {
+  label: string
+  /** Rows sent */
+  items: number
+  /** For per-course data: courses Moodle answered for, out of those asked. Fewer: the others keep their old data on InNoHassle. */
+  answered?: number
+  expected?: number
+  /** Moodle did not answer at all: the old data stays on InNoHassle */
+  failed?: boolean
+}
+
 export interface MoodleSyncReport {
+  data: DataSyncReport[]
   courses: CourseSyncReport[]
 }
