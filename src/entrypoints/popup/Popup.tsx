@@ -3,6 +3,7 @@ import type { CoursesScope } from '@/features/courses/useCourses'
 import { TopBar } from '@/entrypoints/popup/TopBar'
 import { AutologinToggle } from '@/features/autologin/AutologinToggle'
 import { CoursesList } from '@/features/courses/CoursesList'
+import { MoodleSyncToggle } from '@/features/moodle-sync/MoodleSyncToggle'
 import { Search } from '@/features/search/Search'
 import { SyncStatus } from '@/features/sync-status/SyncStatus'
 import { UsefulLinksSection } from '@/features/useful-links/UsefulLinksSection'
@@ -24,6 +25,7 @@ export default function Popup() {
       </Search>
       <div className="mt-3">
         <AutologinToggle />
+        <MoodleSyncToggle />
         <SyncStatus />
       </div>
     </div>
