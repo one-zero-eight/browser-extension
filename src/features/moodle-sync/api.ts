@@ -181,7 +181,3 @@ export function putMoodleFile(sha256: string, file: Blob) {
     data: file,
   })
 }
-
-export function deleteMoodleData() {
-  return searchQueryPromise<void>({ url: '/users/my-moodle', method: 'DELETE' })
-}

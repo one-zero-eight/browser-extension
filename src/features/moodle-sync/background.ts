@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { deleteMoodleData, putMoodleCourseContent, putMoodleFile, putMoodleOverview } from './api'
+import { putMoodleCourseContent, putMoodleFile, putMoodleOverview } from './api'
 import type { FileHashCache } from './collect'
 import { collectCourseContent, collectOverview, sha256Hex } from './collect'
 import type { CourseSyncReport, DataSyncReport } from './report'
@@ -152,21 +152,9 @@ async function doSync(force: boolean) {
   }
 }
 
-/** Turns the sync off and deletes the user's Moodle data from InNoHassle. */
+/** Turns the sync off. The data already on InNoHassle stays; it is just no longer updated from this browser. */
 export async function disableMoodleSync() {
   await setStored('moodleSyncEnabled', false)
-  try {
-    await deleteMoodleData()
-  }
-  catch (e) {
-    console.warn('Moodle sync: deleting the data failed', e)
-    await setStored('moodleSyncLastError', 'Could not delete your Moodle data from InNoHassle; try again')
-    return false
-  }
-  await setStored('moodleSyncContentHashes', undefined)
-  await setStored('moodleSyncFileHashes', undefined)
-  await setStored('moodleSyncLastSuccessMS', undefined)
   await setStored('moodleSyncLastError', undefined)
-  await setStored('moodleSyncReport', undefined)
   return true
 }

@@ -28,7 +28,7 @@ export function MoodleSyncToggle({ increased = false }: { increased?: boolean })
           Calendar, deadlines, grades, progress, and the text and files of your courses, for your InNoHassle calendar,
           recommendations, and search. Course files, pages, announcements and assignment dates are also shared with the
           students of your InNoHassle-verified study group; your grades, submissions and progress never are. Turning it off
-          deletes them from InNoHassle.
+          only stops sending new data; what is already on InNoHassle stays.
         </div>
       </div>
       <input
